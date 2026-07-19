@@ -4,15 +4,13 @@ import cors from 'cors';
 import multer from 'multer';
 import { existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
 import { nanoid, customAlphabet } from 'nanoid';
-import { db } from './db.js';
+import { db, DATA_DIR } from './db.js';
 import { hashPassword, verifyPassword, signToken, requireAuth, requireRole } from './auth.js';
 import { retrieve } from './knowledge.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOADS_DIR = path.join(__dirname, '..', 'data', 'uploads');
+const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
 if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
 
 class UploadError extends Error {}
