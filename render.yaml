@@ -6,13 +6,7 @@ services:
     buildCommand: npm install
     startCommand: npm start
     plan: free
-    disk:
-      name: virta7-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
-      - key: DATA_DIR
-        value: /var/data
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_CODE
