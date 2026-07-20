@@ -18,7 +18,7 @@ services:
     type: web
     runtime: static
     rootDir: virta7
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npx vite build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
