@@ -13,13 +13,3 @@ services:
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
-
-  - name: virta7-ayaan-frontend
-    type: web
-    runtime: static
-    rootDir: virta7
-    buildCommand: npm install && npx vite build
-    staticPublishPath: dist
-    envVars:
-      - key: VITE_API_URL
-        value: https://virta7-ayaan-backend.onrender.com/api
