@@ -4,11 +4,14 @@ import cors from 'cors';
 import multer from 'multer';
 import { existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
 import { nanoid, customAlphabet } from 'nanoid';
 import { db, DATA_DIR } from './db.js';
 import { hashPassword, verifyPassword, signToken, requireAuth, requireRole } from './auth.js';
 import { retrieve } from './knowledge.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
 if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
@@ -597,6 +600,16 @@ app.post('/api/chat', async (req, res) => {
     res.status(502).json({ error: 'Virta could not respond right now. Please try again.' });
   }
 });
+
+// -- Web app (built frontend, served same-origin) --
+
+const PUBLIC_DIR = path.join(__dirname, '..', 'public');
+if (existsSync(PUBLIC_DIR)) {
+  app.use(express.static(PUBLIC_DIR));
+  app.get(/^(?!\/api|\/uploads).*/, (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+  });
+}
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
