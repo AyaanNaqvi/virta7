@@ -5,7 +5,6 @@ import { CalendarDays, Target, ListChecks, BookOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
 import { apiFetch } from '../lib/api';
-import greetingBg from '../assets/greeting-bg.mp4';
 import virtinho from '../assets/virtinho.jpg';
 import virtinha from '../assets/virtinha.jpg';
 
@@ -100,16 +99,6 @@ export function Greeting() {
 
   return (
     <div className="relative flex min-h-svh flex-col overflow-hidden px-6 py-6">
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        src={greetingBg}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-black/25" />
-
       <div className="relative z-10 flex items-center justify-between">
         <div className="flex gap-2" aria-hidden="true">
           <span className="h-2 w-8 rounded-full bg-white" />

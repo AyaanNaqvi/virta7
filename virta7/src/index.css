@@ -4,12 +4,14 @@
   --color-bg: #eaf4fb;
   --color-surface: #ffffff;
   --color-surface-alt: #eef7f2;
+  --color-surface-text: #14213d;
+  --color-surface-text-muted: #4b5a6b;
   --color-primary: #2e6f9e;
   --color-primary-hover: #24597f;
   --color-secondary: #3f8f72;
   --color-secondary-hover: #327259;
-  --color-text: #14213d;
-  --color-text-muted: #4b5a6b;
+  --color-text: #ffffff;
+  --color-text-muted: #e6e6e6;
   --color-border: #c9dce8;
   --color-accent: #d98c00;
   --color-accent-bg: #fdf1dc;
@@ -33,6 +35,8 @@
   --color-bg: #000000;
   --color-surface: #0d0d0d;
   --color-surface-alt: #141414;
+  --color-surface-text: #ffffff;
+  --color-surface-text-muted: #e6e6e6;
   --color-primary: #6fc2ff;
   --color-primary-hover: #8ecfff;
   --color-secondary: #7fe8bd;
@@ -106,12 +110,32 @@ body {
   flex-direction: column;
   max-width: 480px;
   margin: 0 auto;
-  background: var(--color-bg);
+  background: transparent;
   position: relative;
 }
 
 button {
   font-family: inherit;
+}
+
+/* Anything sitting on a solid surface (cards, inputs) keeps readable text,
+   independent of --color-text (which is white, for the video background). */
+.bg-surface,
+.bg-surface-alt {
+  --color-text: var(--color-surface-text);
+  --color-text-muted: var(--color-surface-text-muted);
+}
+
+input,
+textarea,
+select {
+  color: var(--color-surface-text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
 }
 
 :focus-visible {

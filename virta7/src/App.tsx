@@ -10,6 +10,7 @@ import { AdminDashboard } from './routes/admin/AdminDashboard';
 import { TutorDashboard } from './routes/tutor/TutorDashboard';
 import { ManageChild } from './routes/tutor/ManageChild';
 import { AppShell } from './components/layout/AppShell';
+import { AppBackground } from './components/layout/AppBackground';
 import { Greeting } from './routes/Greeting';
 import { Home } from './routes/Home';
 import { VirtaGo } from './routes/VirtaGo';
@@ -105,6 +106,7 @@ function App() {
   return (
     <AuthProvider>
       <AccessibilityProvider>
+        <AppBackground />
         <AppRoutes />
       </AccessibilityProvider>
     </AuthProvider>
