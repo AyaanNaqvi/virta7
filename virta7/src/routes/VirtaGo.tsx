@@ -5,6 +5,7 @@ import type { ChatMessage } from '../types';
 import { loadJSON, saveJSON, STORAGE_KEYS } from '../lib/storage';
 import { getVirtaReply } from '../lib/virtaChat';
 import { apiFetch } from '../lib/api';
+import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
 import virtinha from '../assets/virtinha.jpg';
 import virtinho from '../assets/virtinho.jpg';
@@ -64,9 +65,11 @@ function CharacterPicker({ onPick }: { onPick: (character: Character) => void })
 
 export function VirtaGo() {
   const reduceMotion = useReduceMotion();
+  const { user } = useAuth();
+  const storageKey = `${STORAGE_KEYS.virtaGoMessages}:${user?.id ?? 'anonymous'}`;
   const [character, setCharacter] = useState<Character | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(() =>
-    loadJSON<ChatMessage[]>(STORAGE_KEYS.virtaGoMessages, [])
+    loadJSON<ChatMessage[]>(storageKey, [])
   );
   const [draft, setDraft] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -81,8 +84,8 @@ export function VirtaGo() {
   }, [character]);
 
   useEffect(() => {
-    saveJSON(STORAGE_KEYS.virtaGoMessages, messages);
-  }, [messages]);
+    saveJSON(storageKey, messages);
+  }, [storageKey, messages]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: reduceMotion ? 'auto' : 'smooth' });

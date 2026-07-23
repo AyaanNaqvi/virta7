@@ -4,7 +4,8 @@ import { Card } from '../components/ui/Card';
 import { VideoCard } from '../components/video/VideoCard';
 import { apiFetch } from '../lib/api';
 import type { Video } from '../types/backend';
-import virtaMain from '../assets/virta-main.png';
+import virtinho from '../assets/virtinho.jpg';
+import virtinha from '../assets/virtinha.jpg';
 
 export function Missions() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -43,13 +44,22 @@ export function Missions() {
       <PageContainer>
         <h1 className="mb-6 text-2xl font-bold text-text">Missions</h1>
         <div className="flex flex-col items-center pt-8 text-center">
-          <img
-            src={virtaMain}
-            alt=""
-            aria-hidden="true"
-            className="h-56 w-auto select-none object-contain"
-            draggable={false}
-          />
+          <div className="flex items-end gap-3">
+            <img
+              src={virtinho}
+              alt=""
+              aria-hidden="true"
+              className="h-40 w-auto select-none rounded-3xl object-cover"
+              draggable={false}
+            />
+            <img
+              src={virtinha}
+              alt=""
+              aria-hidden="true"
+              className="h-40 w-auto select-none rounded-3xl object-cover"
+              draggable={false}
+            />
+          </div>
           <p className="mt-4 text-lg font-semibold text-text">No videos added by tutor yet.</p>
         </div>
       </PageContainer>
