@@ -19,6 +19,7 @@ export interface AuthUser {
   accessibilitySettings?: AccessibilitySettings;
   starsTotal?: number;
   starsHistory?: StarsHistoryEntry[];
+  onboarded?: boolean;
   createdAt: string;
 }
 

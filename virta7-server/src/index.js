@@ -212,6 +212,7 @@ app.post('/api/children', requireAuth, requireRole('admin', 'tutor'), (req, res)
     accessibilitySettings: { fontSize: 'medium', highContrast: false, reduceMotion: false },
     starsTotal: 0,
     starsHistory: [],
+    onboarded: false,
     createdAt: new Date().toISOString(),
   };
   db.users.push(child);
@@ -221,11 +222,12 @@ app.post('/api/children', requireAuth, requireRole('admin', 'tutor'), (req, res)
 
 app.patch('/api/me', requireAuth, (req, res) => {
   const me = findUser(req.auth.sub);
-  const { avatarId, accessibilitySettings } = req.body ?? {};
+  const { avatarId, accessibilitySettings, onboarded } = req.body ?? {};
   if (avatarId !== undefined) me.avatarId = avatarId;
   if (accessibilitySettings !== undefined) {
     me.accessibilitySettings = { ...me.accessibilitySettings, ...accessibilitySettings };
   }
+  if (onboarded !== undefined) me.onboarded = onboarded;
   db.persist();
   res.json({ user: publicUser(me) });
 });
