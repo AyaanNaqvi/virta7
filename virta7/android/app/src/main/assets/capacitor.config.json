@@ -1,0 +1,8 @@
+{
+	"appId": "com.virta7.app",
+	"appName": "Virta7",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "http"
+	}
+}
