@@ -70,11 +70,8 @@ export function VirtaGo() {
   const reduceMotion = useReduceMotion();
   const { user } = useAuth();
   const { t, locale } = useLanguage();
-  const storageKey = `${STORAGE_KEYS.virtaGoMessages}:${user?.id ?? 'anonymous'}`;
   const [character, setCharacter] = useState<Character | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>(() =>
-    loadJSON<ChatMessage[]>(storageKey, [])
-  );
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
@@ -82,14 +79,25 @@ export function VirtaGo() {
   const lastSpokenId = useRef<string | null>(null);
 
   const active = CHARACTERS.find((c) => c.id === character);
+  const storageKey = character
+    ? `${STORAGE_KEYS.virtaGoMessages}:${user?.id ?? 'anonymous'}:${character}`
+    : null;
 
   useEffect(() => {
-    if (!character || messages.length > 0) return;
-    setMessages([makeMessage('virta', t('virtago_hiImName', { name: active?.name ?? '' }))]);
+    if (!character) return;
+    const key = `${STORAGE_KEYS.virtaGoMessages}:${user?.id ?? 'anonymous'}:${character}`;
+    const stored = loadJSON<ChatMessage[]>(key, []);
+    if (stored.length > 0) {
+      setMessages(stored);
+    } else {
+      const name = CHARACTERS.find((c) => c.id === character)?.name ?? '';
+      setMessages([makeMessage('virta', t('virtago_hiImName', { name }))]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [character]);
 
   useEffect(() => {
+    if (!storageKey) return;
     saveJSON(storageKey, messages);
   }, [storageKey, messages]);
 
