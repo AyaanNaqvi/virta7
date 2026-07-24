@@ -9,6 +9,19 @@ export const VOICE_PITCH: Record<VirtaCharacter, number> = {
   virtinha: 1.15,
 };
 
+// Used when the platform genuinely offers only one voice for the language
+// (e.g. Chrome on Android's Web Speech API, which exposes a single voice per
+// locale with no gender variants at all). Pitch is the only lever left, so
+// push it further than the normal gap to read as clearly male/female.
+const FALLBACK_PITCH: Record<VirtaCharacter, number> = {
+  virtinho: 0.55,
+  virtinha: 1.1,
+};
+const FALLBACK_RATE: Record<VirtaCharacter, number> = {
+  virtinho: 0.9,
+  virtinha: 1.05,
+};
+
 const VOICE_MUTED_KEY = 'virtaVoiceMuted';
 
 export function isVoiceMuted(): boolean {
@@ -67,17 +80,25 @@ function matchesAny(text: string, hints: string[]): boolean {
   return hints.some((hint) => text.includes(hint));
 }
 
-function pickVoiceIndex(allVoices: Voice[], matches: Voice[], character: VirtaCharacter): number | undefined {
-  if (matches.length === 0) return undefined;
+interface VoicePick {
+  index: number | undefined;
+  // true if we found an actually different voice for this character (not
+  // just the one and only voice available for the language).
+  differentiated: boolean;
+}
+
+function pickVoiceIndex(allVoices: Voice[], matches: Voice[], character: VirtaCharacter): VoicePick {
+  if (matches.length === 0) return { index: undefined, differentiated: false };
+  if (matches.length === 1) return { index: allVoices.indexOf(matches[0]), differentiated: false };
 
   const androidHints = character === 'virtinho' ? ANDROID_MALE_HINTS : ANDROID_FEMALE_HINTS;
   for (const hint of androidHints) {
     const found = matches.find((v) => v.voiceURI.includes(hint) && v.localService);
-    if (found) return allVoices.indexOf(found);
+    if (found) return { index: allVoices.indexOf(found), differentiated: true };
   }
   for (const hint of androidHints) {
     const found = matches.find((v) => v.voiceURI.includes(hint));
-    if (found) return allVoices.indexOf(found);
+    if (found) return { index: allVoices.indexOf(found), differentiated: true };
   }
 
   // Web Speech API voices: check the human-readable name for gender words or
@@ -89,18 +110,21 @@ function pickVoiceIndex(allVoices: Voice[], matches: Voice[], character: VirtaCh
     }
     return /\bfemale\b/.test(text) || matchesAny(text, WEB_FEMALE_NAME_HINTS);
   });
-  if (found) return allVoices.indexOf(found);
+  if (found) return { index: allVoices.indexOf(found), differentiated: true };
 
   // No gender info available at all: fall back to a deterministic split of
   // whatever distinct voices exist, so the two characters at least sound
   // like different people rather than the same voice at a different pitch.
   const families = Array.from(new Set(matches.map((v) => familyOf(v.voiceURI))));
-  if (families.length < 2) return allVoices.indexOf(matches[0]);
+  if (families.length < 2) return { index: allVoices.indexOf(matches[0]), differentiated: false };
   const family = character === 'virtinho' ? families[0] : families[families.length - 1];
   const familyMatch =
     matches.find((v) => familyOf(v.voiceURI) === family && v.localService) ??
     matches.find((v) => familyOf(v.voiceURI) === family);
-  return familyMatch ? allVoices.indexOf(familyMatch) : allVoices.indexOf(matches[0]);
+  return {
+    index: familyMatch ? allVoices.indexOf(familyMatch) : allVoices.indexOf(matches[0]),
+    differentiated: Boolean(familyMatch),
+  };
 }
 
 async function getVoicesWithRetry(): Promise<Voice[]> {
@@ -116,21 +140,26 @@ async function getVoicesWithRetry(): Promise<Voice[]> {
 
 export async function speak(text: string, locale: LocaleCode, character: VirtaCharacter): Promise<void> {
   const langTag = SPEECH_LANG[locale] ?? 'en-US';
-  const pitch = VOICE_PITCH[character];
 
-  let voice: number | undefined;
+  let pick: VoicePick = { index: undefined, differentiated: false };
   try {
     const allVoices = await getVoicesWithRetry();
-    const matches = allVoices.filter((v) => v.lang === langTag);
-    voice = pickVoiceIndex(allVoices, matches, character);
+    // Some platforms (Chrome on Android) report voice.lang with underscores
+    // (en_US) instead of hyphens (en-US); normalize before matching.
+    const normalize = (s: string) => s.toLowerCase().replace(/_/g, '-');
+    const matches = allVoices.filter((v) => normalize(v.lang) === normalize(langTag));
+    pick = pickVoiceIndex(allVoices, matches, character);
   } catch {
-    voice = undefined;
+    pick = { index: undefined, differentiated: false };
   }
 
+  const pitch = pick.differentiated ? VOICE_PITCH[character] : FALLBACK_PITCH[character];
+  const rate = pick.differentiated ? 1 : FALLBACK_RATE[character];
+
   const options =
-    voice === undefined
-      ? { text, lang: langTag, pitch, rate: 1, volume: 1, queueStrategy: QueueStrategy.Flush }
-      : { text, lang: langTag, pitch, rate: 1, volume: 1, voice, queueStrategy: QueueStrategy.Flush };
+    pick.index === undefined
+      ? { text, lang: langTag, pitch, rate, volume: 1, queueStrategy: QueueStrategy.Flush }
+      : { text, lang: langTag, pitch, rate, volume: 1, voice: pick.index, queueStrategy: QueueStrategy.Flush };
 
   TextToSpeech.speak(options).catch(() => {
     // No TTS engine available on this device; fail silently.
