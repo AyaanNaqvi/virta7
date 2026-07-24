@@ -14,12 +14,8 @@ export const VOICE_PITCH: Record<VirtaCharacter, number> = {
 // locale with no gender variants at all). Pitch is the only lever left, so
 // push it further than the normal gap to read as clearly male/female.
 const FALLBACK_PITCH: Record<VirtaCharacter, number> = {
-  virtinho: 0.55,
-  virtinha: 1.1,
-};
-const FALLBACK_RATE: Record<VirtaCharacter, number> = {
-  virtinho: 0.9,
-  virtinha: 1.05,
+  virtinho: 0.7,
+  virtinha: 1.15,
 };
 
 const VOICE_MUTED_KEY = 'virtaVoiceMuted';
@@ -138,7 +134,16 @@ async function getVoicesWithRetry(): Promise<Voice[]> {
   return [];
 }
 
+// speak() awaits a voice lookup before it can actually call the native
+// speak(), so two calls fired close together (e.g. tapping through dialogue
+// quickly) can resolve out of order. Since every call flushes whatever's
+// currently playing, an older call resolving *after* a newer one would cancel
+// it immediately. This token makes a call give up instead of speaking (or
+// flushing) once a newer call has started.
+let speakToken = 0;
+
 export async function speak(text: string, locale: LocaleCode, character: VirtaCharacter): Promise<void> {
+  const token = ++speakToken;
   const langTag = SPEECH_LANG[locale] ?? 'en-US';
 
   let pick: VoicePick = { index: undefined, differentiated: false };
@@ -153,13 +158,14 @@ export async function speak(text: string, locale: LocaleCode, character: VirtaCh
     pick = { index: undefined, differentiated: false };
   }
 
+  if (token !== speakToken) return; // a newer call has since started; drop this one
+
   const pitch = pick.differentiated ? VOICE_PITCH[character] : FALLBACK_PITCH[character];
-  const rate = pick.differentiated ? 1 : FALLBACK_RATE[character];
 
   const options =
     pick.index === undefined
-      ? { text, lang: langTag, pitch, rate, volume: 1, queueStrategy: QueueStrategy.Flush }
-      : { text, lang: langTag, pitch, rate, volume: 1, voice: pick.index, queueStrategy: QueueStrategy.Flush };
+      ? { text, lang: langTag, pitch, rate: 1, volume: 1, queueStrategy: QueueStrategy.Flush }
+      : { text, lang: langTag, pitch, rate: 1, volume: 1, voice: pick.index, queueStrategy: QueueStrategy.Flush };
 
   TextToSpeech.speak(options).catch(() => {
     // No TTS engine available on this device; fail silently.
