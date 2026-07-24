@@ -123,7 +123,7 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
             className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border px-3 text-text-muted"
           >
             <UploadCloud className="h-5 w-5" aria-hidden="true" />
-            {file ? file.name : 'Choose a video file (max 300MB)'}
+            {file ? file.name : 'Choose a video file (max 600MB)'}
           </button>
         </div>
       )}

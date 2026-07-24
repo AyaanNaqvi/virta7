@@ -23,7 +23,7 @@ const upload = multer({
     destination: UPLOADS_DIR,
     filename: (req, file, cb) => cb(null, `${nanoid(12)}${path.extname(file.originalname)}`),
   }),
-  limits: { fileSize: 300 * 1024 * 1024 },
+  limits: { fileSize: 600 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith('video/')) {
       return cb(new UploadError('Only video files are allowed'));
@@ -654,7 +654,7 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ error: err.message });
   }
   if (err instanceof multer.MulterError) {
-    const message = err.code === 'LIMIT_FILE_SIZE' ? 'Video file is too large (max 300MB)' : err.message;
+    const message = err.code === 'LIMIT_FILE_SIZE' ? 'Video file is too large (max 600MB)' : err.message;
     return res.status(400).json({ error: message });
   }
   console.error(err);
