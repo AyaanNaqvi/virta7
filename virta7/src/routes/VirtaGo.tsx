@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send } from 'lucide-react';
+import { Send, Volume2, VolumeX } from 'lucide-react';
 import type { ChatMessage } from '../types';
 import { loadJSON, saveJSON, STORAGE_KEYS } from '../lib/storage';
 import { getVirtaReply } from '../lib/virtaChat';
 import { apiFetch } from '../lib/api';
+import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted, VOICE_PITCH } from '../lib/speech';
 import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -76,7 +77,9 @@ export function VirtaGo() {
   );
   const [draft, setDraft] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastSpokenId = useRef<string | null>(null);
 
   const active = CHARACTERS.find((c) => c.id === character);
 
@@ -89,6 +92,28 @@ export function VirtaGo() {
   useEffect(() => {
     saveJSON(storageKey, messages);
   }, [storageKey, messages]);
+
+  useEffect(() => {
+    if (muted || !character) return;
+    const last = messages[messages.length - 1];
+    if (!last || last.sender !== 'virta' || last.id === lastSpokenId.current) return;
+    lastSpokenId.current = last.id;
+    speak(last.text, locale, VOICE_PITCH[character]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, muted, character, locale]);
+
+  useEffect(() => {
+    return () => stopSpeaking();
+  }, []);
+
+  function toggleMuted() {
+    setMuted((m) => {
+      const next = !m;
+      setVoiceMuted(next);
+      if (next) stopSpeaking();
+      return next;
+    });
+  }
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: reduceMotion ? 'auto' : 'smooth' });
@@ -139,10 +164,19 @@ export function VirtaGo() {
     <div className="flex h-full flex-col">
       <header className="flex items-center gap-3 border-b border-border px-5 py-4">
         <CharacterAvatar image={active.image} name={active.name} size={40} />
-        <div>
+        <div className="flex-1">
           <h1 className="text-lg font-bold text-text">{active.name}</h1>
           <p className="text-sm text-text-muted">{t('virtago_talkWith', { name: active.name })}</p>
         </div>
+        <button
+          type="button"
+          onClick={toggleMuted}
+          aria-label={muted ? 'Unmute voice' : 'Mute voice'}
+          aria-pressed={muted}
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-text-muted"
+        >
+          {muted ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
+        </button>
       </header>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4">

@@ -1,11 +1,12 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CalendarDays, Target, ListChecks, BookOpen } from 'lucide-react';
+import { CalendarDays, Target, ListChecks, BookOpen, Volume2, VolumeX } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { apiFetch } from '../lib/api';
+import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted, VOICE_PITCH } from '../lib/speech';
 import virtinho from '../assets/virtinho.jpg';
 import virtinha from '../assets/virtinha.jpg';
 
@@ -28,7 +29,7 @@ export function Greeting() {
   const navigate = useNavigate();
   const { user, token, updateUser } = useAuth();
   const reduceMotion = useReduceMotion();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const isFirstTime = !user?.onboarded;
 
   const OPTIONS = [
@@ -61,9 +62,29 @@ export function Greeting() {
   });
   const [stepIndex, setStepIndex] = useState(0);
   const [stage, setStage] = useState<Stage>('dialogue');
+  const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
   const markedOnboarded = useRef(false);
 
   const step = steps[Math.min(stepIndex, steps.length - 1)];
+
+  useEffect(() => {
+    if (muted || stage !== 'dialogue') return;
+    speak(step.text, locale, VOICE_PITCH[step.speaker]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, stage, muted, locale]);
+
+  useEffect(() => {
+    return () => stopSpeaking();
+  }, []);
+
+  function toggleMuted() {
+    setMuted((m) => {
+      const next = !m;
+      setVoiceMuted(next);
+      if (next) stopSpeaking();
+      return next;
+    });
+  }
 
   function markOnboarded() {
     if (markedOnboarded.current || !isFirstTime) return;
@@ -102,15 +123,26 @@ export function Greeting() {
           <span className="h-2 w-8 rounded-full bg-white" />
           <span className={`h-2 w-8 rounded-full ${stage !== 'dialogue' ? 'bg-white' : 'bg-white/30'}`} />
         </div>
-        {stage !== 'confirm' && (
+        <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={goHome}
-            className="min-h-11 rounded-xl px-3 text-sm font-semibold text-white"
+            onClick={toggleMuted}
+            aria-label={muted ? 'Unmute voice' : 'Mute voice'}
+            aria-pressed={muted}
+            className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-white"
           >
-            {t('greeting_skip')}
+            {muted ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
           </button>
-        )}
+          {stage !== 'confirm' && (
+            <button
+              type="button"
+              onClick={goHome}
+              className="min-h-11 rounded-xl px-3 text-sm font-semibold text-white"
+            >
+              {t('greeting_skip')}
+            </button>
+          )}
+        </div>
       </div>
 
       {stage === 'dialogue' && (
