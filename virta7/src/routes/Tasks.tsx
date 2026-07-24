@@ -5,22 +5,24 @@ import { Card } from '../components/ui/Card';
 import { StarBadge } from '../components/ui/StarBadge';
 import { useChildData } from '../contexts/ChildDataContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export function Tasks() {
   const { tasks, completeTask } = useChildData();
   const reduceMotion = useReduceMotion();
+  const { t } = useLanguage();
 
-  const available = tasks.filter((t) => !t.completed);
-  const completed = tasks.filter((t) => t.completed);
+  const available = tasks.filter((task) => !task.completed);
+  const completed = tasks.filter((task) => task.completed);
 
   if (tasks.length === 0) {
     return (
       <PageContainer>
-        <h1 className="mb-6 text-2xl font-bold text-text">Tasks</h1>
+        <h1 className="mb-6 text-2xl font-bold text-text">{t('tasks_title')}</h1>
         <Card className="flex flex-col items-center py-8 text-center">
           <ListChecks className="mb-3 h-10 w-10 text-text-muted" aria-hidden="true" />
-          <p className="font-semibold text-text">No tasks yet</p>
-          <p className="text-text-muted">Ask your caregiver to add some.</p>
+          <p className="font-semibold text-text">{t('tasks_noTasksYet')}</p>
+          <p className="text-text-muted">{t('tasks_askCaregiver')}</p>
         </Card>
       </PageContainer>
     );
@@ -28,12 +30,12 @@ export function Tasks() {
 
   return (
     <PageContainer>
-      <h1 className="mb-1 text-2xl font-bold text-text">Tasks</h1>
-      <p className="mb-6 text-text-muted">Complete tasks to earn stars.</p>
+      <h1 className="mb-1 text-2xl font-bold text-text">{t('tasks_title')}</h1>
+      <p className="mb-6 text-text-muted">{t('tasks_subtitle')}</p>
 
       <div className="mb-6 flex flex-col gap-3">
         {available.length === 0 && (
-          <Card className="text-center text-text-muted">All tasks are done. Great job!</Card>
+          <Card className="text-center text-text-muted">{t('tasks_allDone')}</Card>
         )}
         {available.map((task) => (
           <button
@@ -58,7 +60,7 @@ export function Tasks() {
 
       {completed.length > 0 && (
         <>
-          <h2 className="mb-3 text-lg font-bold text-text">Completed</h2>
+          <h2 className="mb-3 text-lg font-bold text-text">{t('tasks_completed')}</h2>
           <div className="flex flex-col gap-3">
             <AnimatePresence>
               {completed.map((task) => (
@@ -74,7 +76,7 @@ export function Tasks() {
                     </span>
                     <div className="flex-1">
                       <p className="font-bold text-text">{task.title}</p>
-                      <p className="text-sm text-text-muted">Completed</p>
+                      <p className="text-sm text-text-muted">{t('tasks_completed')}</p>
                     </div>
                   </Card>
                 </motion.div>

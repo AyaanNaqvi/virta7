@@ -1,18 +1,21 @@
 import { NavLink } from 'react-router-dom';
 import { Home, CalendarDays, BookOpen, Star, User, Target, MessageCircle, ListChecks } from 'lucide-react';
-
-const NAV_ITEMS = [
-  { to: '/home', label: 'Home', icon: Home },
-  { to: '/virta-go', label: 'Virta', icon: MessageCircle },
-  { to: '/missions', label: 'Missions', icon: Target },
-  { to: '/timetable', label: 'Timetable', icon: CalendarDays },
-  { to: '/diary', label: 'Diary', icon: BookOpen },
-  { to: '/tasks', label: 'Tasks', icon: ListChecks },
-  { to: '/stars', label: 'Stars', icon: Star },
-  { to: '/profile', label: 'Profile', icon: User },
-];
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export function BottomNav() {
+  const { t } = useLanguage();
+
+  const NAV_ITEMS = [
+    { to: '/home', label: t('nav_home'), icon: Home },
+    { to: '/virta-go', label: t('nav_virta'), icon: MessageCircle },
+    { to: '/missions', label: t('nav_missions'), icon: Target },
+    { to: '/timetable', label: t('nav_timetable'), icon: CalendarDays },
+    { to: '/diary', label: t('nav_diary'), icon: BookOpen },
+    { to: '/tasks', label: t('nav_tasks'), icon: ListChecks },
+    { to: '/stars', label: t('nav_stars'), icon: Star },
+    { to: '/profile', label: t('nav_profile'), icon: User },
+  ];
+
   return (
     <nav
       aria-label="Main navigation"

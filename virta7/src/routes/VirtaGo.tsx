@@ -7,6 +7,7 @@ import { getVirtaReply } from '../lib/virtaChat';
 import { apiFetch } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import virtinha from '../assets/virtinha.jpg';
 import virtinho from '../assets/virtinho.jpg';
 
@@ -39,10 +40,11 @@ function CharacterAvatar({ image, name, size = 36 }: { image: string; name: stri
 
 function CharacterPicker({ onPick }: { onPick: (character: Character) => void }) {
   const reduceMotion = useReduceMotion();
+  const { t } = useLanguage();
   return (
     <div className="flex h-full flex-col items-center justify-center px-6 py-6 text-center">
-      <h1 className="mb-1 text-2xl font-bold text-text">Who do you want to chat with?</h1>
-      <p className="mb-8 text-text-muted">Pick a friend to talk to.</p>
+      <h1 className="mb-1 text-2xl font-bold text-text">{t('virtago_whoChat')}</h1>
+      <p className="mb-8 text-text-muted">{t('virtago_pickFriend')}</p>
       <div className="grid w-full max-w-sm grid-cols-2 gap-4">
         {CHARACTERS.map((c) => (
           <motion.button
@@ -66,6 +68,7 @@ function CharacterPicker({ onPick }: { onPick: (character: Character) => void })
 export function VirtaGo() {
   const reduceMotion = useReduceMotion();
   const { user } = useAuth();
+  const { t, locale } = useLanguage();
   const storageKey = `${STORAGE_KEYS.virtaGoMessages}:${user?.id ?? 'anonymous'}`;
   const [character, setCharacter] = useState<Character | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(() =>
@@ -79,7 +82,7 @@ export function VirtaGo() {
 
   useEffect(() => {
     if (!character || messages.length > 0) return;
-    setMessages([makeMessage('virta', `Hi! I'm ${active?.name}. What's on your mind today?`)]);
+    setMessages([makeMessage('virta', t('virtago_hiImName', { name: active?.name ?? '' }))]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [character]);
 
@@ -106,7 +109,7 @@ export function VirtaGo() {
     try {
       const data = await apiFetch<{ reply: string }>('/chat', {
         method: 'POST',
-        body: { message: text, history },
+        body: { message: text, history, language: locale },
       });
       reply = data.reply;
     } catch {
@@ -138,7 +141,7 @@ export function VirtaGo() {
         <CharacterAvatar image={active.image} name={active.name} size={40} />
         <div>
           <h1 className="text-lg font-bold text-text">{active.name}</h1>
-          <p className="text-sm text-text-muted">Talk with {active.name}</p>
+          <p className="text-sm text-text-muted">{t('virtago_talkWith', { name: active.name })}</p>
         </div>
       </header>
 
@@ -175,7 +178,7 @@ export function VirtaGo() {
             >
               <CharacterAvatar image={active.image} name={active.name} size={32} />
               <div className="rounded-3xl border border-border bg-surface px-4 py-3 text-text-muted">
-                {active.name} is typing…
+                {t('virtago_typing', { name: active.name })}
               </div>
             </motion.div>
           )}
@@ -188,7 +191,7 @@ export function VirtaGo() {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Type a message…"
+          placeholder={t('virtago_placeholder')}
           aria-label="Message to Virta"
           className="min-h-11 flex-1 rounded-2xl border-2 border-border bg-surface px-4 text-text"
         />

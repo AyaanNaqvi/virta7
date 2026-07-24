@@ -38,6 +38,18 @@ const anthropic = process.env.ANTHROPIC_API_KEY
 const CHAT_MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
 const ADMIN_CODE = process.env.ADMIN_CODE || 'virta7-admin';
 
+const LANGUAGE_NAMES = {
+  'en-US': 'English (US)',
+  'en-GB': 'English (UK)',
+  'pt-PT': 'European Portuguese',
+  'pt-BR': 'Brazilian Portuguese',
+  es: 'Spanish',
+  no: 'Norwegian',
+  fr: 'French',
+  it: 'Italian',
+  hu: 'Hungarian',
+};
+
 const VIRTA_PERSONA = `You are Virta, a friendly companion character inside Virta7, an app that helps
 autistic children and teens with daily routines and social skills.
 
@@ -592,15 +604,17 @@ app.post('/api/chat', async (req, res) => {
     });
   }
 
-  const { message, history } = req.body ?? {};
+  const { message, history, language } = req.body ?? {};
   if (!message || typeof message !== 'string') {
     return res.status(400).json({ error: 'message is required' });
   }
 
   const context = retrieve(message);
+  const languageName = LANGUAGE_NAMES[language];
+  const languageInstruction = languageName ? `\n\nReply in ${languageName}, regardless of the language the user writes in.` : '';
   const system = context.length
-    ? `${VIRTA_PERSONA}\n\nHelpful context you can draw on if relevant:\n${context.map((c) => `- ${c}`).join('\n')}`
-    : VIRTA_PERSONA;
+    ? `${VIRTA_PERSONA}\n\nHelpful context you can draw on if relevant:\n${context.map((c) => `- ${c}`).join('\n')}${languageInstruction}`
+    : `${VIRTA_PERSONA}${languageInstruction}`;
 
   const messages = [
     ...(Array.isArray(history) ? history : [])

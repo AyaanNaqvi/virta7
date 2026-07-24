@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AccessibilityProvider } from './contexts/AccessibilityContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import { ChildDataProvider } from './contexts/ChildDataContext';
 import { AuthProvider, useAuth, roleHome } from './contexts/AuthContext';
 import type { AuthRole } from './types/backend';
@@ -106,8 +107,10 @@ function App() {
   return (
     <AuthProvider>
       <AccessibilityProvider>
-        <AppBackground />
-        <AppRoutes />
+        <LanguageProvider>
+          <AppBackground />
+          <AppRoutes />
+        </LanguageProvider>
       </AccessibilityProvider>
     </AuthProvider>
   );

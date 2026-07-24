@@ -3,6 +3,7 @@ import { PageContainer } from '../components/layout/PageContainer';
 import { Card } from '../components/ui/Card';
 import { VideoCard } from '../components/video/VideoCard';
 import { apiFetch } from '../lib/api';
+import { useLanguage } from '../contexts/LanguageContext';
 import type { Video } from '../types/backend';
 import virtinho from '../assets/virtinho.jpg';
 import virtinha from '../assets/virtinha.jpg';
@@ -11,6 +12,7 @@ export function Missions() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     apiFetch<{ videos: Video[] }>('/videos')
@@ -22,8 +24,8 @@ export function Missions() {
   if (loading) {
     return (
       <PageContainer>
-        <h1 className="mb-6 text-2xl font-bold text-text">Missions</h1>
-        <p className="text-text-muted">Loading…</p>
+        <h1 className="mb-6 text-2xl font-bold text-text">{t('missions_title')}</h1>
+        <p className="text-text-muted">{t('missions_loading')}</p>
       </PageContainer>
     );
   }
@@ -31,10 +33,8 @@ export function Missions() {
   if (error) {
     return (
       <PageContainer>
-        <h1 className="mb-6 text-2xl font-bold text-text">Missions</h1>
-        <Card className="text-center text-text-muted">
-          Couldn't load videos right now. Ask your tutor to check the connection.
-        </Card>
+        <h1 className="mb-6 text-2xl font-bold text-text">{t('missions_title')}</h1>
+        <Card className="text-center text-text-muted">{t('missions_couldntLoad')}</Card>
       </PageContainer>
     );
   }
@@ -42,7 +42,7 @@ export function Missions() {
   if (videos.length === 0) {
     return (
       <PageContainer>
-        <h1 className="mb-6 text-2xl font-bold text-text">Missions</h1>
+        <h1 className="mb-6 text-2xl font-bold text-text">{t('missions_title')}</h1>
         <div className="flex flex-col items-center pt-8 text-center">
           <div className="flex items-end gap-3">
             <img
@@ -60,7 +60,7 @@ export function Missions() {
               draggable={false}
             />
           </div>
-          <p className="mt-4 text-lg font-semibold text-text">No videos added by tutor yet.</p>
+          <p className="mt-4 text-lg font-semibold text-text">{t('missions_noVideos')}</p>
         </div>
       </PageContainer>
     );
@@ -68,8 +68,8 @@ export function Missions() {
 
   return (
     <PageContainer>
-      <h1 className="mb-1 text-2xl font-bold text-text">Missions</h1>
-      <p className="mb-6 text-text-muted">Videos picked for you. Tap one to watch.</p>
+      <h1 className="mb-1 text-2xl font-bold text-text">{t('missions_title')}</h1>
+      <p className="mb-6 text-text-muted">{t('missions_subtitle')}</p>
 
       <div className="flex flex-col gap-3">
         {videos.map((video) => (

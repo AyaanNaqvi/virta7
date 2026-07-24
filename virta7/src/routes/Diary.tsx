@@ -4,11 +4,13 @@ import { PageContainer } from '../components/layout/PageContainer';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useChildData } from '../contexts/ChildDataContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { formatDiaryDate, formatEntryTime } from '../lib/date';
 
 export function Diary() {
   const navigate = useNavigate();
   const { diaryEntries } = useChildData();
+  const { t } = useLanguage();
 
   const dateKeys = Array.from(new Set(diaryEntries.map((e) => e.date))).sort((a, b) =>
     b.localeCompare(a)
@@ -16,8 +18,8 @@ export function Diary() {
 
   return (
     <PageContainer>
-      <h1 className="mb-1 text-2xl font-bold text-text">Diary</h1>
-      <p className="mb-5 text-text-muted">Write about your day.</p>
+      <h1 className="mb-1 text-2xl font-bold text-text">{t('diary_title')}</h1>
+      <p className="mb-5 text-text-muted">{t('diary_subtitle')}</p>
 
       <Button
         size="lg"
@@ -26,14 +28,14 @@ export function Diary() {
         onClick={() => navigate('/diary/new')}
         className="mb-6"
       >
-        Add entry
+        {t('diary_addEntry')}
       </Button>
 
       {dateKeys.length === 0 ? (
         <Card className="flex flex-col items-center py-8 text-center">
           <BookOpen className="mb-3 h-10 w-10 text-text-muted" aria-hidden="true" />
-          <p className="font-semibold text-text">No diary entries yet</p>
-          <p className="text-text-muted">Tap "Add entry" to write about your day.</p>
+          <p className="font-semibold text-text">{t('diary_noEntries')}</p>
+          <p className="text-text-muted">{t('diary_tapAddEntry')}</p>
         </Card>
       ) : (
         <div className="flex flex-col gap-6">

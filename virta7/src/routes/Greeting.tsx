@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CalendarDays, Target, ListChecks, BookOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { apiFetch } from '../lib/api';
 import virtinho from '../assets/virtinho.jpg';
 import virtinha from '../assets/virtinha.jpg';
@@ -21,46 +22,43 @@ const CHARACTERS: Record<Speaker, { name: string; image: string }> = {
   virtinha: { name: 'Virtinha', image: virtinha },
 };
 
-const OPTIONS = [
-  { to: '/timetable', label: 'My timetable', icon: CalendarDays },
-  { to: '/missions', label: 'Missions', icon: Target },
-  { to: '/tasks', label: 'Earn stars', icon: ListChecks },
-  { to: '/diary', label: 'Relax', icon: BookOpen },
-];
-
 const CONFIRM_DURATION_MS = 900;
-
-function buildReturningSteps(name?: string): DialogueStep[] {
-  return [
-    { speaker: 'virtinho', text: name ? `Hi ${name}! How are you today?` : 'Hi! How are you today?' },
-    { speaker: 'virtinha', text: 'What are you trying to do today?' },
-  ];
-}
-
-function buildFirstTimeSteps(name?: string): DialogueStep[] {
-  return [
-    { speaker: 'virtinho', text: name ? `Hi ${name}! I'm Virtinho.` : "Hi! I'm Virtinho." },
-    { speaker: 'virtinha', text: "And I'm Virtinha!" },
-    { speaker: 'virtinho', text: 'This app is called Virta7. Let us show you around.' },
-    { speaker: 'virtinha', text: 'Timetable shows your routine for each day.' },
-    { speaker: 'virtinho', text: 'Tasks are small jobs you can do to earn stars.' },
-    { speaker: 'virtinha', text: 'Stars can be traded for rewards you like.' },
-    { speaker: 'virtinho', text: 'Diary is a private place to write about your day.' },
-    { speaker: 'virtinha', text: 'Missions are videos picked just for you.' },
-    { speaker: 'virtinho', text: 'Virta Go is where you can chat with us anytime.' },
-    { speaker: 'virtinha', text: "Now let's pick something to do!" },
-  ];
-}
 
 export function Greeting() {
   const navigate = useNavigate();
   const { user, token, updateUser } = useAuth();
   const reduceMotion = useReduceMotion();
+  const { t } = useLanguage();
   const isFirstTime = !user?.onboarded;
 
-  const [steps] = useState<DialogueStep[]>(() =>
-    isFirstTime ? buildFirstTimeSteps(user?.name) : buildReturningSteps(user?.name)
-  );
+  const OPTIONS = [
+    { to: '/timetable', label: t('greeting_myTimetable'), icon: CalendarDays },
+    { to: '/missions', label: t('greeting_missions'), icon: Target },
+    { to: '/tasks', label: t('greeting_earnStars'), icon: ListChecks },
+    { to: '/diary', label: t('greeting_relax'), icon: BookOpen },
+  ];
+
+  const [steps] = useState<DialogueStep[]>(() => {
+    const name = user?.name;
+    if (isFirstTime) {
+      return [
+        { speaker: 'virtinho', text: name ? t('greeting_imVirtinhoName', { name }) : t('greeting_imVirtinho') },
+        { speaker: 'virtinha', text: t('greeting_andImVirtinha') },
+        { speaker: 'virtinho', text: t('greeting_appIntro') },
+        { speaker: 'virtinha', text: t('greeting_timetableIntro') },
+        { speaker: 'virtinho', text: t('greeting_tasksIntro') },
+        { speaker: 'virtinha', text: t('greeting_starsIntro') },
+        { speaker: 'virtinho', text: t('greeting_diaryIntro') },
+        { speaker: 'virtinha', text: t('greeting_missionsIntro') },
+        { speaker: 'virtinho', text: t('greeting_virtaGoIntro') },
+        { speaker: 'virtinha', text: t('greeting_pickSomething') },
+      ];
+    }
+    return [
+      { speaker: 'virtinho', text: name ? t('greeting_hiName', { name }) : t('greeting_hi') },
+      { speaker: 'virtinha', text: t('greeting_whatDoing') },
+    ];
+  });
   const [stepIndex, setStepIndex] = useState(0);
   const [stage, setStage] = useState<Stage>('dialogue');
   const markedOnboarded = useRef(false);
@@ -110,7 +108,7 @@ export function Greeting() {
             onClick={goHome}
             className="min-h-11 rounded-xl px-3 text-sm font-semibold text-white"
           >
-            Skip
+            {t('greeting_skip')}
           </button>
         )}
       </div>
@@ -163,7 +161,7 @@ export function Greeting() {
             transition={{ duration: reduceMotion ? 0 : 0.3, ease: 'easeOut' }}
             className="max-w-[75%] self-start rounded-3xl border border-border bg-surface px-5 py-4 text-left text-lg font-semibold text-text shadow-sm"
           >
-            {stage === 'choose' ? 'What would you like to do?' : 'Nice, go ahead!'}
+            {stage === 'choose' ? t('greeting_whatWouldYouLikeToDo') : t('greeting_niceGoAhead')}
           </motion.div>
 
           <div className="flex items-end justify-between">

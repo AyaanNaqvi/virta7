@@ -6,6 +6,7 @@ import { StarBadge } from '../components/ui/StarBadge';
 import { RoutineBlockCard } from '../components/routine/RoutineBlockCard';
 import { useAuth } from '../contexts/AuthContext';
 import { useChildData } from '../contexts/ChildDataContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { getAvatar } from '../data/avatars';
 import { getTodayWeekday, getTodayDateKey } from '../lib/date';
 
@@ -13,6 +14,7 @@ export function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { routinesForDay, completeRoutine, stars } = useChildData();
+  const { t } = useLanguage();
 
   const today = getTodayWeekday();
   const todayRoutines = routinesForDay(today);
@@ -33,19 +35,19 @@ export function Home() {
           <Avatar className="h-8 w-8 text-primary" aria-hidden="true" />
         </span>
         <div>
-          <p className="text-sm text-text-muted">Hello,</p>
-          <h1 className="text-2xl font-bold text-text">{user?.name || 'friend'}!</h1>
+          <p className="text-sm text-text-muted">{t('home_hello')}</p>
+          <h1 className="text-2xl font-bold text-text">{user?.name || t('home_friend')}!</h1>
         </div>
       </div>
 
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-text">Today's timetable</h2>
+        <h2 className="text-lg font-bold text-text">{t('home_todaysTimetable')}</h2>
         <button
           type="button"
           onClick={() => navigate('/timetable')}
           className="flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-semibold text-primary"
         >
-          See all
+          {t('home_seeAll')}
           <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
@@ -53,13 +55,11 @@ export function Home() {
       {allDone ? (
         <Card className="mb-6 flex flex-col items-center py-8 text-center">
           <PartyPopper className="mb-3 h-10 w-10 text-secondary" aria-hidden="true" />
-          <p className="text-lg font-bold text-text">All done for today!</p>
-          <p className="text-text-muted">Great job finishing your routine.</p>
+          <p className="text-lg font-bold text-text">{t('home_allDoneTitle')}</p>
+          <p className="text-text-muted">{t('home_allDoneSubtitle')}</p>
         </Card>
       ) : todayRoutines.length === 0 ? (
-        <Card className="mb-6 text-center text-text-muted">
-          No routine set up for today yet. Ask your caregiver to add one.
-        </Card>
+        <Card className="mb-6 text-center text-text-muted">{t('home_noRoutine')}</Card>
       ) : (
         <div className="mb-6 flex flex-col gap-3">
           {upcoming.map((block) => (
@@ -70,8 +70,8 @@ export function Home() {
 
       <Card className="mb-4 flex items-center justify-between">
         <div>
-          <p className="font-semibold text-text">Stars earned today</p>
-          <p className="text-sm text-text-muted">Keep going, you're doing great!</p>
+          <p className="font-semibold text-text">{t('home_starsTodayTitle')}</p>
+          <p className="text-sm text-text-muted">{t('home_starsTodaySubtitle')}</p>
         </div>
         <StarBadge count={starsToday} size="lg" />
       </Card>
@@ -93,14 +93,17 @@ export function Home() {
             {stars.total > 0 ? (
               <>
                 <p className="font-semibold text-text">
-                  You have {stars.total} {stars.total === 1 ? 'star' : 'stars'} to spend!
+                  {t('home_youHaveStars', {
+                    count: stars.total,
+                    unit: stars.total === 1 ? t('home_star') : t('home_starsPlural'),
+                  })}
                 </p>
-                <p className="text-sm text-text-muted">Tap to see rewards you can redeem.</p>
+                <p className="text-sm text-text-muted">{t('home_tapRewards')}</p>
               </>
             ) : (
               <>
-                <p className="font-semibold text-text">Earn stars to unlock rewards!</p>
-                <p className="text-sm text-text-muted">Tap to see tasks you can complete.</p>
+                <p className="font-semibold text-text">{t('home_earnStarsTitle')}</p>
+                <p className="text-sm text-text-muted">{t('home_tapTasks')}</p>
               </>
             )}
           </div>
