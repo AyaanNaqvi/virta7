@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Languages } from 'lucide-react';
 import { PageContainer } from '../../components/layout/PageContainer';
 import { Button } from '../../components/ui/Button';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
 import { useAuth, roleHome } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { LOCALES, type LocaleCode } from '../../i18n/locales';
 import { ApiError } from '../../lib/api';
 
 type Mode = 'grownup' | 'child';
@@ -12,7 +14,7 @@ type Mode = 'grownup' | 'child';
 export function Login() {
   const navigate = useNavigate();
   const { login, childLogin, user } = useAuth();
-  const { t } = useLanguage();
+  const { t, locale, setLocale } = useLanguage();
   const [mode, setMode] = useState<Mode>('grownup');
 
   const [email, setEmail] = useState('');
@@ -53,6 +55,25 @@ export function Login() {
 
   return (
     <PageContainer>
+      <div className="mb-4 flex justify-end">
+        <label className="flex items-center gap-2">
+          <Languages className="h-4 w-4 text-text-muted" aria-hidden="true" />
+          <span className="sr-only">{t('profile_language')}</span>
+          <select
+            value={locale}
+            onChange={(e) => setLocale(e.target.value as LocaleCode)}
+            aria-label={t('profile_language')}
+            className="min-h-11 rounded-xl border border-border bg-surface px-2 text-sm text-text"
+          >
+            {LOCALES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
       <h1 className="mb-1 text-2xl font-bold text-text">{t('login_title')}</h1>
       <p className="mb-6 text-text-muted">{t('login_welcomeBack')}</p>
 
