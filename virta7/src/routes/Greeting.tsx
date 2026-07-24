@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { apiFetch } from '../lib/api';
-import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted, VOICE_PITCH } from '../lib/speech';
+import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted } from '../lib/speech';
 import virtinho from '../assets/virtinho.jpg';
 import virtinha from '../assets/virtinha.jpg';
 
@@ -69,7 +69,7 @@ export function Greeting() {
 
   useEffect(() => {
     if (muted || stage !== 'dialogue') return;
-    speak(step.text, locale, VOICE_PITCH[step.speaker]);
+    speak(step.text, locale, step.speaker);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, stage, muted, locale]);
 

@@ -5,7 +5,7 @@ import type { ChatMessage } from '../types';
 import { loadJSON, saveJSON, STORAGE_KEYS } from '../lib/storage';
 import { getVirtaReply } from '../lib/virtaChat';
 import { apiFetch } from '../lib/api';
-import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted, VOICE_PITCH } from '../lib/speech';
+import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted } from '../lib/speech';
 import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -98,7 +98,7 @@ export function VirtaGo() {
     const last = messages[messages.length - 1];
     if (!last || last.sender !== 'virta' || last.id === lastSpokenId.current) return;
     lastSpokenId.current = last.id;
-    speak(last.text, locale, VOICE_PITCH[character]);
+    speak(last.text, locale, character);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, muted, character, locale]);
 
