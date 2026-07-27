@@ -17,14 +17,17 @@ function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function dayOfYear(date: Date): number {
-  const start = new Date(date.getFullYear(), 0, 0);
-  return Math.floor((date.getTime() - start.getTime()) / 86400000);
+// Days since the Unix epoch, a strictly increasing counter that never resets
+// (unlike day-of-year, which would jump backwards every January 1st). This
+// makes the mission-of-the-day walk through the video list in the order
+// videos were added, one per day, indefinitely.
+function daysSinceEpoch(date: Date): number {
+  return Math.floor(date.getTime() / 86400000);
 }
 
 function pickMissionOfDay(videos: Video[]): Video | null {
   if (videos.length === 0) return null;
-  return videos[dayOfYear(new Date()) % videos.length];
+  return videos[daysSinceEpoch(new Date()) % videos.length];
 }
 
 function MissionOfDayPopup({ video, onDismiss }: { video: Video; onDismiss: () => void }) {
