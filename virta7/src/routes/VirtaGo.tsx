@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Volume2, VolumeX } from 'lucide-react';
+import { Send, Volume2, VolumeX, Mic } from 'lucide-react';
 import type { ChatMessage } from '../types';
 import { loadJSON, saveJSON, STORAGE_KEYS } from '../lib/storage';
 import { getVirtaReply } from '../lib/virtaChat';
 import { apiFetch } from '../lib/api';
 import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted } from '../lib/speech';
+import { isSpeechToTextSupported, listenOnce, stopListening } from '../lib/speechToText';
 import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -75,6 +76,8 @@ export function VirtaGo() {
   const [draft, setDraft] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
+  const [listening, setListening] = useState(false);
+  const [micSupported] = useState(() => isSpeechToTextSupported());
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastSpokenId = useRef<string | null>(null);
 
@@ -111,7 +114,10 @@ export function VirtaGo() {
   }, [messages, muted, character, locale]);
 
   useEffect(() => {
-    return () => stopSpeaking();
+    return () => {
+      stopSpeaking();
+      stopListening();
+    };
   }, []);
 
   function toggleMuted() {
@@ -161,6 +167,25 @@ export function VirtaGo() {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSend();
+    }
+  }
+
+  async function handleMicClick() {
+    if (listening) {
+      await stopListening();
+      setListening(false);
+      return;
+    }
+    setListening(true);
+    try {
+      const transcript = await listenOnce(locale);
+      if (transcript) {
+        setDraft((d) => (d ? `${d} ${transcript}` : transcript));
+      }
+    } catch {
+      // Microphone permission denied or unavailable; the child can still type.
+    } finally {
+      setListening(false);
     }
   }
 
@@ -233,10 +258,25 @@ export function VirtaGo() {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={t('virtago_placeholder')}
+          placeholder={listening ? t('virtago_listening') : t('virtago_placeholder')}
           aria-label="Message to Virta"
           className="min-h-11 flex-1 rounded-2xl border-2 border-border bg-surface px-4 text-text"
         />
+        {micSupported && (
+          <motion.button
+            type="button"
+            onClick={handleMicClick}
+            aria-label={listening ? 'Stop voice input' : 'Speak your message'}
+            aria-pressed={listening}
+            animate={listening && !reduceMotion ? { scale: [1, 1.12, 1] } : { scale: 1 }}
+            transition={listening && !reduceMotion ? { duration: 1, repeat: Infinity } : undefined}
+            className={`flex min-h-11 min-w-11 items-center justify-center rounded-2xl ${
+              listening ? 'bg-alert text-white' : 'bg-surface-alt text-text-muted'
+            }`}
+          >
+            <Mic className="h-5 w-5" aria-hidden="true" />
+          </motion.button>
+        )}
         <button
           type="button"
           onClick={handleSend}

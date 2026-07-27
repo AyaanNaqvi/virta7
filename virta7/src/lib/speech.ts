@@ -28,9 +28,10 @@ export function setVoiceMuted(muted: boolean): void {
   saveJSON(VOICE_MUTED_KEY, muted);
 }
 
-// BCP-47 tags for TTS voice matching (our locale codes are close, but a couple
-// need a country suffix a voice is actually likely to exist for).
-const SPEECH_LANG: Record<LocaleCode, string> = {
+// BCP-47 tags for speech matching (our locale codes are close, but a couple
+// need a country suffix a voice is actually likely to exist for). Shared with
+// speechToText.ts so both directions agree on what tag to use per locale.
+export const SPEECH_LANG: Record<LocaleCode, string> = {
   'en-US': 'en-US',
   'en-GB': 'en-GB',
   'pt-PT': 'pt-PT',

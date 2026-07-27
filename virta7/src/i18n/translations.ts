@@ -147,6 +147,7 @@ export interface Translations {
   virtago_talkWith: string;
   virtago_typing: string;
   virtago_placeholder: string;
+  virtago_listening: string;
   virtago_hiImName: string;
 
   missions_title: string;
@@ -306,6 +307,7 @@ const enUS: Translations = {
   virtago_talkWith: 'Talk with {name}',
   virtago_typing: '{name} is typing…',
   virtago_placeholder: 'Type a message…',
+  virtago_listening: 'Listening…',
   virtago_hiImName: "Hi! I'm {name}. What's on your mind today?",
 
   missions_title: 'Missions',
@@ -469,6 +471,7 @@ const ptPT: Translations = {
   virtago_talkWith: 'Falar com {name}',
   virtago_typing: '{name} está a escrever…',
   virtago_placeholder: 'Escreve uma mensagem…',
+  virtago_listening: 'A ouvir…',
   virtago_hiImName: 'Olá! Eu sou o/a {name}. Em que estás a pensar hoje?',
 
   missions_title: 'Missões',
@@ -691,6 +694,7 @@ const es: Translations = {
   virtago_talkWith: 'Hablar con {name}',
   virtago_typing: '{name} está escribiendo…',
   virtago_placeholder: 'Escribe un mensaje…',
+  virtago_listening: 'Escuchando…',
   virtago_hiImName: '¡Hola! Soy {name}. ¿En qué estás pensando hoy?',
 
   missions_title: 'Misiones',
@@ -850,6 +854,7 @@ const no: Translations = {
   virtago_talkWith: 'Snakk med {name}',
   virtago_typing: '{name} skriver…',
   virtago_placeholder: 'Skriv en melding…',
+  virtago_listening: 'Lytter…',
   virtago_hiImName: 'Hei! Jeg heter {name}. Hva tenker du på i dag?',
 
   missions_title: 'Oppdrag',
@@ -1009,6 +1014,7 @@ const fr: Translations = {
   virtago_talkWith: 'Parler avec {name}',
   virtago_typing: '{name} est en train d\'écrire…',
   virtago_placeholder: 'Écris un message…',
+  virtago_listening: 'Écoute en cours…',
   virtago_hiImName: "Salut ! Je suis {name}. À quoi penses-tu aujourd'hui ?",
 
   missions_title: 'Missions',
@@ -1168,6 +1174,7 @@ const it: Translations = {
   virtago_talkWith: 'Parla con {name}',
   virtago_typing: '{name} sta scrivendo…',
   virtago_placeholder: 'Scrivi un messaggio…',
+  virtago_listening: 'In ascolto…',
   virtago_hiImName: 'Ciao! Sono {name}. A cosa stai pensando oggi?',
 
   missions_title: 'Missioni',
@@ -1327,6 +1334,7 @@ const hu: Translations = {
   virtago_talkWith: 'Beszélgetés vele: {name}',
   virtago_typing: '{name} éppen ír…',
   virtago_placeholder: 'Írj egy üzenetet…',
+  virtago_listening: 'Hallgatom…',
   virtago_hiImName: 'Szia! Én {name} vagyok. Mi jár a fejedben ma?',
 
   missions_title: 'Küldetések',
