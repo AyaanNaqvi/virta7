@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { LogOut, UserPlus, ChevronRight } from 'lucide-react';
+import { LogOut, UserPlus, ChevronRight, Check, X, Clock } from 'lucide-react';
 import { PageContainer } from '../../components/layout/PageContainer';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
+import { StarBadge } from '../../components/ui/StarBadge';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiFetch, ApiError } from '../../lib/api';
+import { registerForPushNotifications } from '../../lib/push';
 import { AVATAR_OPTIONS } from '../../data/avatars';
-import type { BackendChild } from '../../types/backend';
+import type { BackendChild, BackendTask } from '../../types/backend';
 
 function AddChildForm({ onAdded }: { onAdded: () => void }) {
   const { token } = useAuth();
@@ -109,17 +111,90 @@ function AddChildForm({ onAdded }: { onAdded: () => void }) {
   );
 }
 
+function PendingApprovals({
+  tasks,
+  children,
+  onDecided,
+}: {
+  tasks: BackendTask[];
+  children: BackendChild[];
+  onDecided: () => void;
+}) {
+  const { token } = useAuth();
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const pending = tasks.filter((t) => t.pendingApproval);
+  if (pending.length === 0) return null;
+
+  async function decide(id: string, action: 'approve' | 'reject') {
+    setBusyId(id);
+    try {
+      await apiFetch(`/tasks/${id}/${action}`, { method: 'POST', token });
+      onDecided();
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  return (
+    <div className="mb-8">
+      <h2 className="mb-3 text-lg font-bold text-text">Pending approvals</h2>
+      <div className="flex flex-col gap-3">
+        {pending.map((task) => {
+          const child = children.find((c) => c.id === task.childId);
+          return (
+            <Card key={task.id} className="flex items-center gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent/10">
+                <Clock className="h-6 w-6 text-accent" aria-hidden="true" />
+              </span>
+              <div className="flex-1">
+                <p className="font-bold text-text">{task.title}</p>
+                <p className="text-sm text-text-muted">
+                  {child?.name ?? 'A child'} says this is done · <StarBadge count={task.starReward} />
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => decide(task.id, 'reject')}
+                disabled={busyId === task.id}
+                aria-label={`Reject ${task.title}`}
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-alert disabled:opacity-50"
+              >
+                <X className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => decide(task.id, 'approve')}
+                disabled={busyId === task.id}
+                aria-label={`Approve ${task.title}`}
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-secondary text-white disabled:opacity-50"
+              >
+                <Check className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function TutorDashboard() {
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
   const [children, setChildren] = useState<BackendChild[]>([]);
+  const [tasks, setTasks] = useState<BackendTask[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch<{ children: BackendChild[] }>('/children', { token });
-      setChildren(data.children);
+      const [childrenData, tasksData] = await Promise.all([
+        apiFetch<{ children: BackendChild[] }>('/children', { token }),
+        apiFetch<{ tasks: BackendTask[] }>('/tasks', { token }),
+      ]);
+      setChildren(childrenData.children);
+      setTasks(tasksData.tasks);
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         logout();
@@ -134,6 +209,10 @@ export function TutorDashboard() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    registerForPushNotifications(token);
+  }, [token]);
 
   function handleLogout() {
     logout();
@@ -156,6 +235,8 @@ export function TutorDashboard() {
           <LogOut className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
+
+      <PendingApprovals tasks={tasks} children={children} onDecided={refresh} />
 
       <AddChildForm onAdded={refresh} />
 

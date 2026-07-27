@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ListChecks } from 'lucide-react';
+import { Check, Clock, ListChecks } from 'lucide-react';
 import { PageContainer } from '../components/layout/PageContainer';
 import { Card } from '../components/ui/Card';
 import { StarBadge } from '../components/ui/StarBadge';
@@ -12,7 +12,8 @@ export function Tasks() {
   const reduceMotion = useReduceMotion();
   const { t } = useLanguage();
 
-  const available = tasks.filter((task) => !task.completed);
+  const available = tasks.filter((task) => !task.completed && !task.pendingApproval);
+  const pending = tasks.filter((task) => task.pendingApproval);
   const completed = tasks.filter((task) => task.completed);
 
   if (tasks.length === 0) {
@@ -34,7 +35,7 @@ export function Tasks() {
       <p className="mb-6 text-text-muted">{t('tasks_subtitle')}</p>
 
       <div className="mb-6 flex flex-col gap-3">
-        {available.length === 0 && (
+        {available.length === 0 && pending.length === 0 && (
           <Card className="text-center text-text-muted">{t('tasks_allDone')}</Card>
         )}
         {available.map((task) => (
@@ -57,6 +58,34 @@ export function Tasks() {
           </button>
         ))}
       </div>
+
+      {pending.length > 0 && (
+        <>
+          <h2 className="mb-3 text-lg font-bold text-text">{t('tasks_waitingApprovalHeading')}</h2>
+          <div className="mb-6 flex flex-col gap-3">
+            <AnimatePresence>
+              {pending.map((task) => (
+                <motion.div
+                  key={task.id}
+                  initial={reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.3 }}
+                >
+                  <Card className="flex items-center gap-4">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent/10">
+                      <Clock className="h-6 w-6 text-accent" aria-hidden="true" />
+                    </span>
+                    <div className="flex-1">
+                      <p className="font-bold text-text">{task.title}</p>
+                      <p className="text-sm text-text-muted">{t('tasks_waitingApproval')}</p>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </>
+      )}
 
       {completed.length > 0 && (
         <>

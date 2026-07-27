@@ -25,4 +25,5 @@ export function removeKey(key: string): void {
 export const STORAGE_KEYS = {
   accessibility: 'accessibility',
   virtaGoMessages: 'virtaGoMessages',
+  missionOfDaySeen: 'missionOfDaySeen',
 } as const;

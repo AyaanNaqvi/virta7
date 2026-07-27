@@ -52,6 +52,8 @@ export interface Translations {
   tasks_subtitle: string;
   tasks_allDone: string;
   tasks_completed: string;
+  tasks_waitingApproval: string;
+  tasks_waitingApprovalHeading: string;
 
   stars_title: string;
   stars_yourStars: string;
@@ -152,6 +154,9 @@ export interface Translations {
   missions_couldntLoad: string;
   missions_noVideos: string;
   missions_subtitle: string;
+  missions_missionOfDay: string;
+  missions_missionOfDayPopupHeading: string;
+  missions_letsGo: string;
 }
 
 const enUS: Translations = {
@@ -206,6 +211,8 @@ const enUS: Translations = {
   tasks_subtitle: 'Complete tasks to earn stars.',
   tasks_allDone: 'All tasks are done. Great job!',
   tasks_completed: 'Completed',
+  tasks_waitingApproval: 'Waiting for your caregiver to check it',
+  tasks_waitingApprovalHeading: 'Waiting for approval',
 
   stars_title: 'Stars',
   stars_yourStars: 'Your stars',
@@ -306,6 +313,9 @@ const enUS: Translations = {
   missions_couldntLoad: "Couldn't load videos right now. Ask your tutor to check the connection.",
   missions_noVideos: 'No videos added by tutor yet.',
   missions_subtitle: 'Videos picked for you. Tap one to watch.',
+  missions_missionOfDay: 'Mission of the Day',
+  missions_missionOfDayPopupHeading: "Today's Mission!",
+  missions_letsGo: "Let's go!",
 };
 
 const enGB: Translations = {
@@ -364,6 +374,8 @@ const ptPT: Translations = {
   tasks_subtitle: 'Completa tarefas para ganhar estrelas.',
   tasks_allDone: 'Todas as tarefas estão feitas. Bom trabalho!',
   tasks_completed: 'Concluída',
+  tasks_waitingApproval: 'A aguardar que o teu cuidador verifique',
+  tasks_waitingApprovalHeading: 'A aguardar aprovação',
 
   stars_title: 'Estrelas',
   stars_yourStars: 'As tuas estrelas',
@@ -464,6 +476,9 @@ const ptPT: Translations = {
   missions_couldntLoad: 'Não foi possível carregar os vídeos. Pede ao teu tutor para verificar a ligação.',
   missions_noVideos: 'O tutor ainda não adicionou vídeos.',
   missions_subtitle: 'Vídeos escolhidos para ti. Toca num para ver.',
+  missions_missionOfDay: 'Missão do Dia',
+  missions_missionOfDayPopupHeading: 'A Missão de Hoje!',
+  missions_letsGo: 'Vamos lá!',
 };
 
 const ptBR: Translations = {
@@ -581,6 +596,8 @@ const es: Translations = {
   tasks_subtitle: 'Completa tareas para ganar estrellas.',
   tasks_allDone: '¡Todas las tareas están hechas. Buen trabajo!',
   tasks_completed: 'Completada',
+  tasks_waitingApproval: 'Esperando a que tu cuidador lo revise',
+  tasks_waitingApprovalHeading: 'Esperando aprobación',
 
   stars_title: 'Estrellas',
   stars_yourStars: 'Tus estrellas',
@@ -681,6 +698,9 @@ const es: Translations = {
   missions_couldntLoad: 'No se pudieron cargar los videos. Pide a tu tutor que revise la conexión.',
   missions_noVideos: 'Tu tutor todavía no ha añadido videos.',
   missions_subtitle: 'Videos elegidos para ti. Toca uno para verlo.',
+  missions_missionOfDay: 'Misión del Día',
+  missions_missionOfDayPopupHeading: '¡La Misión de Hoy!',
+  missions_letsGo: '¡Vamos!',
 };
 
 const no: Translations = {
@@ -735,6 +755,8 @@ const no: Translations = {
   tasks_subtitle: 'Fullfør oppgaver for å tjene stjerner.',
   tasks_allDone: 'Alle oppgaver er gjort. Bra jobbet!',
   tasks_completed: 'Fullført',
+  tasks_waitingApproval: 'Venter på at omsorgspersonen din sjekker det',
+  tasks_waitingApprovalHeading: 'Venter på godkjenning',
 
   stars_title: 'Stjerner',
   stars_yourStars: 'Dine stjerner',
@@ -835,6 +857,9 @@ const no: Translations = {
   missions_couldntLoad: 'Kunne ikke laste videoer nå. Be foresatt sjekke tilkoblingen.',
   missions_noVideos: 'Ingen videoer er lagt til av foresatt ennå.',
   missions_subtitle: 'Videoer valgt for deg. Trykk på en for å se den.',
+  missions_missionOfDay: 'Dagens Oppdrag',
+  missions_missionOfDayPopupHeading: 'Dagens Oppdrag!',
+  missions_letsGo: 'Kom igjen!',
 };
 
 const fr: Translations = {
@@ -889,6 +914,8 @@ const fr: Translations = {
   tasks_subtitle: 'Termine des tâches pour gagner des étoiles.',
   tasks_allDone: 'Toutes les tâches sont faites. Bravo !',
   tasks_completed: 'Terminée',
+  tasks_waitingApproval: "En attente de vérification par ton adulte référent",
+  tasks_waitingApprovalHeading: 'En attente de validation',
 
   stars_title: 'Étoiles',
   stars_yourStars: 'Tes étoiles',
@@ -989,6 +1016,9 @@ const fr: Translations = {
   missions_couldntLoad: "Impossible de charger les vidéos. Demande à ton tuteur de vérifier la connexion.",
   missions_noVideos: "Le tuteur n'a pas encore ajouté de vidéos.",
   missions_subtitle: 'Vidéos choisies pour toi. Touche-en une pour la regarder.',
+  missions_missionOfDay: 'Mission du Jour',
+  missions_missionOfDayPopupHeading: 'La Mission du Jour !',
+  missions_letsGo: "C'est parti !",
 };
 
 const it: Translations = {
@@ -1043,6 +1073,8 @@ const it: Translations = {
   tasks_subtitle: 'Completa le attività per guadagnare stelle.',
   tasks_allDone: 'Tutte le attività sono completate. Ottimo lavoro!',
   tasks_completed: 'Completata',
+  tasks_waitingApproval: 'In attesa che il tuo tutor lo controlli',
+  tasks_waitingApprovalHeading: 'In attesa di approvazione',
 
   stars_title: 'Stelle',
   stars_yourStars: 'Le tue stelle',
@@ -1143,6 +1175,9 @@ const it: Translations = {
   missions_couldntLoad: 'Impossibile caricare i video ora. Chiedi al tuo tutor di controllare la connessione.',
   missions_noVideos: 'Il tutor non ha ancora aggiunto video.',
   missions_subtitle: 'Video scelti per te. Toccane uno per guardarlo.',
+  missions_missionOfDay: 'Missione del Giorno',
+  missions_missionOfDayPopupHeading: 'La Missione di Oggi!',
+  missions_letsGo: 'Andiamo!',
 };
 
 const hu: Translations = {
@@ -1197,6 +1232,8 @@ const hu: Translations = {
   tasks_subtitle: 'Végezz el feladatokat, hogy csillagokat szerezz.',
   tasks_allDone: 'Minden feladat kész. Szép munka!',
   tasks_completed: 'Elvégezve',
+  tasks_waitingApproval: 'Várakozás, hogy a gondviselőd ellenőrizze',
+  tasks_waitingApprovalHeading: 'Jóváhagyásra vár',
 
   stars_title: 'Csillagok',
   stars_yourStars: 'A csillagaid',
@@ -1297,6 +1334,9 @@ const hu: Translations = {
   missions_couldntLoad: 'Most nem sikerült betölteni a videókat. Kérd meg a gondviselődet, hogy ellenőrizze a kapcsolatot.',
   missions_noVideos: 'A gondviselőd még nem adott hozzá videókat.',
   missions_subtitle: 'Neked válogatott videók. Koppints egyre a megtekintéshez.',
+  missions_missionOfDay: 'A Nap Küldetése',
+  missions_missionOfDayPopupHeading: 'A Mai Küldetés!',
+  missions_letsGo: 'Gyerünk!',
 };
 
 export const TRANSLATIONS: Record<LocaleCode, Translations> = {

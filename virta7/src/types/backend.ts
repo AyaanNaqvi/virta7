@@ -53,6 +53,7 @@ export interface BackendTask {
   description: string;
   starReward: number;
   completed: boolean;
+  pendingApproval: boolean;
   createdAt: string;
 }
 

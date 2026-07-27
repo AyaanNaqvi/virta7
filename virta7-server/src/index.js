@@ -10,6 +10,7 @@ import { nanoid, customAlphabet } from 'nanoid';
 import { db, DATA_DIR } from './db.js';
 import { hashPassword, verifyPassword, signToken, requireAuth, requireRole } from './auth.js';
 import { retrieve } from './knowledge.js';
+import { sendPushToTokens, pushEnabled } from './push.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -109,6 +110,19 @@ function awardStars(child, amount, reason) {
   child.starsTotal = (child.starsTotal ?? 0) + amount;
   child.starsHistory = child.starsHistory ?? [];
   child.starsHistory.push({ date: new Date().toISOString(), amount, reason });
+}
+
+async function notifyTutorOfPendingTask(child, task) {
+  if (!child.tutorId) return;
+  const tutor = findUser(child.tutorId);
+  if (!tutor?.pushTokens?.length) return;
+  await sendPushToTokens(tutor.pushTokens, {
+    title: `${child.name} says they finished a task`,
+    body: `"${task.title}" needs your approval before stars are given.`,
+  }, (badToken) => {
+    tutor.pushTokens = tutor.pushTokens.filter((t) => t !== badToken);
+    db.persist();
+  });
 }
 
 function scopedChildIds(me) {
@@ -244,6 +258,22 @@ app.patch('/api/me', requireAuth, (req, res) => {
   res.json({ user: publicUser(me) });
 });
 
+// -- Push notifications (tutor/admin devices only) --
+
+app.post('/api/push/register', requireAuth, requireRole('admin', 'tutor'), (req, res) => {
+  const me = findUser(req.auth.sub);
+  const { token } = req.body ?? {};
+  if (!token || typeof token !== 'string') {
+    return res.status(400).json({ error: 'token is required' });
+  }
+  me.pushTokens = me.pushTokens ?? [];
+  if (!me.pushTokens.includes(token)) {
+    me.pushTokens.push(token);
+    db.persist();
+  }
+  res.status(204).end();
+});
+
 app.delete('/api/auth/me', requireAuth, (req, res) => {
   const me = findUser(req.auth.sub);
   const { password, pin } = req.body ?? {};
@@ -375,6 +405,7 @@ app.post('/api/tasks', requireAuth, requireRole('admin', 'tutor'), (req, res) =>
     description: description || '',
     starReward: Math.max(1, Number(starReward) || 1),
     completed: false,
+    pendingApproval: false,
     createdAt: new Date().toISOString(),
   };
   db.tasks.push(task);
@@ -409,17 +440,48 @@ app.delete('/api/tasks/:id', requireAuth, requireRole('admin', 'tutor'), (req, r
   res.status(204).end();
 });
 
-app.post('/api/tasks/:id/complete', requireAuth, requireRole('child'), (req, res) => {
+// Child marks a task done. Stars aren't awarded yet: it goes to the tutor for
+// approval first, so the child can't just self-report chores as finished.
+app.post('/api/tasks/:id/complete', requireAuth, requireRole('child'), async (req, res) => {
   const task = db.tasks.find((t) => t.id === req.params.id);
   if (!task) return res.status(404).json({ error: 'Task not found' });
   if (task.childId !== req.auth.sub) return res.status(403).json({ error: 'This is not your task' });
-  if (!task.completed) {
+  if (!task.completed && !task.pendingApproval) {
+    task.pendingApproval = true;
+    db.persist();
+    const child = findUser(req.auth.sub);
+    await notifyTutorOfPendingTask(child, task);
+  }
+  res.json({ task, starsTotal: findUser(req.auth.sub).starsTotal });
+});
+
+app.post('/api/tasks/:id/approve', requireAuth, requireRole('admin', 'tutor'), (req, res) => {
+  const me = findUser(req.auth.sub);
+  const task = db.tasks.find((t) => t.id === req.params.id);
+  if (!task) return res.status(404).json({ error: 'Task not found' });
+  if (!canManageChild(me, task.childId)) {
+    return res.status(403).json({ error: 'You do not manage this child' });
+  }
+  if (task.pendingApproval && !task.completed) {
+    task.pendingApproval = false;
     task.completed = true;
-    const me = findUser(req.auth.sub);
-    awardStars(me, task.starReward, `Task completed: ${task.title}`);
+    const child = findUser(task.childId);
+    awardStars(child, task.starReward, `Task completed: ${task.title}`);
   }
   db.persist();
-  res.json({ task, starsTotal: findUser(req.auth.sub).starsTotal });
+  res.json({ task });
+});
+
+app.post('/api/tasks/:id/reject', requireAuth, requireRole('admin', 'tutor'), (req, res) => {
+  const me = findUser(req.auth.sub);
+  const task = db.tasks.find((t) => t.id === req.params.id);
+  if (!task) return res.status(404).json({ error: 'Task not found' });
+  if (!canManageChild(me, task.childId)) {
+    return res.status(403).json({ error: 'You do not manage this child' });
+  }
+  task.pendingApproval = false;
+  db.persist();
+  res.json({ task });
 });
 
 // -- Rewards --
