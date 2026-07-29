@@ -21,6 +21,7 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function reset() {
@@ -30,6 +31,7 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
     setFile(null);
     setSource('link');
     setOpen(false);
+    setUploadProgress(null);
   }
 
   async function handleAdd() {
@@ -37,11 +39,12 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
     setSaving(true);
     try {
       if (source === 'upload' && file) {
+        setUploadProgress(0);
         const formData = new FormData();
         formData.append('title', title);
         formData.append('description', description);
         formData.append('file', file);
-        await apiUpload('/videos/upload', { formData, token });
+        await apiUpload('/videos/upload', { formData, token, onProgress: setUploadProgress });
       } else {
         await apiFetch('/videos', { method: 'POST', token, body: { title, description, url } });
       }
@@ -51,6 +54,7 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
       setError(err instanceof ApiError ? err.message : 'Could not add video. Please try again.');
     } finally {
       setSaving(false);
+      setUploadProgress(null);
     }
   }
 
@@ -120,11 +124,31 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border px-3 text-text-muted"
+            disabled={saving}
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border px-3 text-text-muted disabled:opacity-60"
           >
             <UploadCloud className="h-5 w-5" aria-hidden="true" />
             {file ? file.name : 'Choose a video file (max 600MB)'}
           </button>
+          {uploadProgress !== null && (
+            <div className="mt-2">
+              <div
+                role="progressbar"
+                aria-valuenow={uploadProgress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                className="h-2 w-full overflow-hidden rounded-full bg-surface-alt"
+              >
+                <div
+                  className="h-full rounded-full bg-primary transition-[width]"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <p className="mt-1 text-center text-sm text-text-muted">
+                {uploadProgress < 100 ? `Uploading… ${uploadProgress}%` : 'Finishing up…'}
+              </p>
+            </div>
+          )}
         </div>
       )}
       {error && (
