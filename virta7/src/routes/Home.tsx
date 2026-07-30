@@ -127,14 +127,10 @@ export function Home() {
             className="h-32 w-auto select-none rounded-3xl object-cover"
             draggable={false}
           />
-          <button
-            type="button"
-            onClick={() => navigate('/greeting?choose=1')}
-            className="flex min-h-11 flex-col items-center gap-0.5 text-sm font-semibold text-text-muted"
-          >
+          <p className="flex flex-col items-center gap-0.5 text-sm font-semibold text-text-muted">
             {t('home_todaysOptionsBanner')}
             <ChevronDown className="h-4 w-4 animate-bounce" aria-hidden="true" />
-          </button>
+          </p>
         </div>
       )}
     </PageContainer>
