@@ -151,6 +151,10 @@ export interface Translations {
   virtago_typing: string;
   virtago_placeholder: string;
   virtago_listening: string;
+  virtago_resetChat: string;
+  virtago_resetChatConfirm: string;
+  virtago_reset: string;
+  virtago_cancel: string;
   virtago_hiImName: string;
 
   missions_title: string;
@@ -317,6 +321,10 @@ const enUS: Translations = {
   virtago_typing: '{name} is typing…',
   virtago_placeholder: 'Type a message…',
   virtago_listening: 'Listening…',
+  virtago_resetChat: 'Reset chat',
+  virtago_resetChatConfirm: 'Reset this chat? All messages will be deleted.',
+  virtago_reset: 'Reset',
+  virtago_cancel: 'Cancel',
   virtago_hiImName: "Hi! I'm {name}. What's on your mind today?",
 
   missions_title: 'Missions',
@@ -487,6 +495,10 @@ const ptPT: Translations = {
   virtago_typing: '{name} está a escrever…',
   virtago_placeholder: 'Escreve uma mensagem…',
   virtago_listening: 'A ouvir…',
+  virtago_resetChat: 'Reiniciar conversa',
+  virtago_resetChatConfirm: 'Reiniciar esta conversa? Todas as mensagens serão apagadas.',
+  virtago_reset: 'Reiniciar',
+  virtago_cancel: 'Cancelar',
   virtago_hiImName: 'Olá! Eu sou {name}. Em que estás a pensar hoje?',
 
   missions_title: 'Missões',
@@ -717,6 +729,10 @@ const es: Translations = {
   virtago_typing: '{name} está escribiendo…',
   virtago_placeholder: 'Escribe un mensaje…',
   virtago_listening: 'Escuchando…',
+  virtago_resetChat: 'Reiniciar chat',
+  virtago_resetChatConfirm: '¿Reiniciar este chat? Se borrarán todos los mensajes.',
+  virtago_reset: 'Reiniciar',
+  virtago_cancel: 'Cancelar',
   virtago_hiImName: '¡Hola! Soy {name}. ¿En qué estás pensando hoy?',
 
   missions_title: 'Misiones',
@@ -883,6 +899,10 @@ const no: Translations = {
   virtago_typing: '{name} skriver…',
   virtago_placeholder: 'Skriv en melding…',
   virtago_listening: 'Lytter…',
+  virtago_resetChat: 'Tilbakestill chat',
+  virtago_resetChatConfirm: 'Tilbakestille denne chatten? Alle meldinger vil bli slettet.',
+  virtago_reset: 'Tilbakestill',
+  virtago_cancel: 'Avbryt',
   virtago_hiImName: 'Hei! Jeg heter {name}. Hva tenker du på i dag?',
 
   missions_title: 'Oppdrag',
@@ -1049,6 +1069,10 @@ const fr: Translations = {
   virtago_typing: '{name} est en train d\'écrire…',
   virtago_placeholder: 'Écris un message…',
   virtago_listening: 'Écoute en cours…',
+  virtago_resetChat: 'Réinitialiser la discussion',
+  virtago_resetChatConfirm: 'Réinitialiser cette discussion ? Tous les messages seront supprimés.',
+  virtago_reset: 'Réinitialiser',
+  virtago_cancel: 'Annuler',
   virtago_hiImName: "Salut ! Je suis {name}. À quoi penses-tu aujourd'hui ?",
 
   missions_title: 'Missions',
@@ -1215,6 +1239,10 @@ const it: Translations = {
   virtago_typing: '{name} sta scrivendo…',
   virtago_placeholder: 'Scrivi un messaggio…',
   virtago_listening: 'In ascolto…',
+  virtago_resetChat: 'Reimposta chat',
+  virtago_resetChatConfirm: 'Reimpostare questa chat? Tutti i messaggi verranno eliminati.',
+  virtago_reset: 'Reimposta',
+  virtago_cancel: 'Annulla',
   virtago_hiImName: 'Ciao! Sono {name}. A cosa stai pensando oggi?',
 
   missions_title: 'Missioni',
@@ -1381,6 +1409,10 @@ const hu: Translations = {
   virtago_typing: '{name} éppen ír…',
   virtago_placeholder: 'Írj egy üzenetet…',
   virtago_listening: 'Hallgatom…',
+  virtago_resetChat: 'Beszélgetés újraindítása',
+  virtago_resetChatConfirm: 'Újraindítod ezt a beszélgetést? Minden üzenet törlődik.',
+  virtago_reset: 'Újraindítás',
+  virtago_cancel: 'Mégse',
   virtago_hiImName: 'Szia! Én {name} vagyok. Mi jár a fejedben ma?',
 
   missions_title: 'Küldetések',

@@ -553,11 +553,21 @@ app.post('/api/rewards/:id/redeem', requireAuth, requireRole('child'), (req, res
   res.json({ reward, starsTotal: me.starsTotal });
 });
 
-// -- Diary (private to the child; no tutor/admin access) --
+// -- Diary --
+// Children write their own entries; their tutor/admin can read them (but not
+// write or delete them).
 
-app.get('/api/diary', requireAuth, requireRole('child'), (req, res) => {
-  const entries = db.diaryEntries.filter((e) => e.childId === req.auth.sub);
-  res.json({ entries });
+app.get('/api/diary', requireAuth, (req, res) => {
+  const me = findUser(req.auth.sub);
+  if (me.role === 'child') {
+    return res.json({ entries: db.diaryEntries.filter((e) => e.childId === me.id) });
+  }
+  const { childId } = req.query;
+  if (!childId) return res.status(400).json({ error: 'childId is required' });
+  if (!canManageChild(me, childId)) {
+    return res.status(403).json({ error: 'You do not manage this child' });
+  }
+  res.json({ entries: db.diaryEntries.filter((e) => e.childId === childId) });
 });
 
 app.post('/api/diary', requireAuth, requireRole('child'), (req, res) => {

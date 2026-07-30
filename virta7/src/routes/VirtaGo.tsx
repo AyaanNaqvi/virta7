@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Volume2, VolumeX, Mic } from 'lucide-react';
+import { Send, Volume2, VolumeX, Mic, RotateCcw } from 'lucide-react';
 import type { ChatMessage } from '../types';
-import { loadJSON, saveJSON, STORAGE_KEYS } from '../lib/storage';
+import { loadJSON, saveJSON, removeKey, STORAGE_KEYS } from '../lib/storage';
 import { getVirtaReply } from '../lib/virtaChat';
 import { apiFetch } from '../lib/api';
 import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted } from '../lib/speech';
@@ -78,6 +78,7 @@ export function VirtaGo() {
   const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
   const [listening, setListening] = useState(false);
   const [micSupported] = useState(() => isSpeechToTextSupported());
+  const [confirmingReset, setConfirmingReset] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastSpokenId = useRef<string | null>(null);
 
@@ -195,6 +196,16 @@ export function VirtaGo() {
     }
   }
 
+  function resetChat() {
+    if (!character || !storageKey) return;
+    removeKey(storageKey);
+    lastSpokenId.current = null;
+    stopSpeaking();
+    const name = CHARACTERS.find((c) => c.id === character)?.name ?? '';
+    setMessages([makeMessage('virta', t('virtago_hiImName', { name }))]);
+    setConfirmingReset(false);
+  }
+
   if (!character || !active) {
     return <CharacterPicker onPick={setCharacter} />;
   }
@@ -209,6 +220,14 @@ export function VirtaGo() {
         </div>
         <button
           type="button"
+          onClick={() => setConfirmingReset(true)}
+          aria-label={t('virtago_resetChat')}
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-text-muted"
+        >
+          <RotateCcw className="h-5 w-5" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
           onClick={toggleMuted}
           aria-label={muted ? 'Unmute voice' : 'Mute voice'}
           aria-pressed={muted}
@@ -217,6 +236,30 @@ export function VirtaGo() {
           {muted ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
         </button>
       </header>
+
+      {confirmingReset && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-sm rounded-3xl bg-surface p-5 text-center shadow-xl">
+            <p className="mb-4 font-semibold text-text">{t('virtago_resetChatConfirm')}</p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setConfirmingReset(false)}
+                className="min-h-11 flex-1 rounded-2xl border-2 border-border font-semibold text-text"
+              >
+                {t('virtago_cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={resetChat}
+                className="min-h-11 flex-1 rounded-2xl bg-alert font-semibold text-white"
+              >
+                {t('virtago_reset')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4">
         <div className="flex flex-col gap-3">

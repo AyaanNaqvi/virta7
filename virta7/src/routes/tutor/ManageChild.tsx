@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ChevronLeft, Plus, Trash2, Star } from 'lucide-react';
+import { ChevronLeft, Plus, Trash2, Star, BookOpen } from 'lucide-react';
 import { PageContainer } from '../../components/layout/PageContainer';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -10,8 +10,8 @@ import { apiFetch, ApiError } from '../../lib/api';
 import { getAvatar } from '../../data/avatars';
 import { getRoutineIcon, ROUTINE_ICON_IDS } from '../../data/routineIcons';
 import { WEEKDAYS, WEEKDAY_LABELS } from '../../data/weekdays';
-import { formatTime } from '../../lib/date';
-import type { BackendChild, BackendReward, BackendRoutine, BackendTask } from '../../types/backend';
+import { formatTime, formatDiaryDate, formatEntryTime } from '../../lib/date';
+import type { BackendChild, BackendDiaryEntry, BackendReward, BackendRoutine, BackendTask } from '../../types/backend';
 import type { Weekday } from '../../types';
 
 function AddRoutineForm({ childId, onAdded }: { childId: string; onAdded: () => void }) {
@@ -246,22 +246,25 @@ export function ManageChild() {
   const [routines, setRoutines] = useState<BackendRoutine[]>([]);
   const [tasks, setTasks] = useState<BackendTask[]>([]);
   const [rewards, setRewards] = useState<BackendReward[]>([]);
+  const [diaryEntries, setDiaryEntries] = useState<BackendDiaryEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     if (!childId) return;
     setLoading(true);
     try {
-      const [childrenData, routinesData, tasksData, rewardsData] = await Promise.all([
+      const [childrenData, routinesData, tasksData, rewardsData, diaryData] = await Promise.all([
         apiFetch<{ children: BackendChild[] }>('/children', { token }),
         apiFetch<{ routines: BackendRoutine[] }>(`/routines?childId=${childId}`, { token }),
         apiFetch<{ tasks: BackendTask[] }>(`/tasks?childId=${childId}`, { token }),
         apiFetch<{ rewards: BackendReward[] }>(`/rewards?childId=${childId}`, { token }),
+        apiFetch<{ entries: BackendDiaryEntry[] }>(`/diary?childId=${childId}`, { token }),
       ]);
       setChild(childrenData.children.find((c) => c.id === childId) ?? null);
       setRoutines(routinesData.routines);
       setTasks(tasksData.tasks);
       setRewards(rewardsData.rewards);
+      setDiaryEntries(diaryData.entries);
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         logout();
@@ -421,6 +424,26 @@ export function ManageChild() {
         {rewards.length === 0 && <Card className="text-center text-text-muted">No rewards yet.</Card>}
       </div>
       <AddRewardForm childId={child.id} onAdded={refresh} />
+
+      <h2 className="mb-3 mt-8 text-lg font-bold text-text">Diary</h2>
+      <div className="flex flex-col gap-3">
+        {[...diaryEntries]
+          .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+          .map((entry) => (
+            <Card key={entry.id} className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+                <BookOpen className="h-5 w-5 text-primary" aria-hidden="true" />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-text-muted">
+                  {formatDiaryDate(entry.date)} · {formatEntryTime(entry.createdAt)}
+                </p>
+                <p className="mt-1 whitespace-pre-wrap text-text">{entry.text}</p>
+              </div>
+            </Card>
+          ))}
+        {diaryEntries.length === 0 && <Card className="text-center text-text-muted">No diary entries yet.</Card>}
+      </div>
     </PageContainer>
   );
 }
