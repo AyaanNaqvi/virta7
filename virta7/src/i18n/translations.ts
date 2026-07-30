@@ -40,6 +40,7 @@ export interface Translations {
   home_tapRewards: string;
   home_earnStarsTitle: string;
   home_tapTasks: string;
+  home_todaysOptionsBanner: string;
 
   timetable_title: string;
   timetable_chooseDay: string;
@@ -121,6 +122,8 @@ export interface Translations {
   register_error: string;
 
   greeting_skip: string;
+  greeting_pickCompanion: string;
+  greeting_tapToContinue: string;
   greeting_hiName: string;
   greeting_hi: string;
   greeting_whatDoing: string;
@@ -158,6 +161,9 @@ export interface Translations {
   missions_missionOfDay: string;
   missions_missionOfDayPopupHeading: string;
   missions_letsGo: string;
+  missions_openVideo: string;
+  missions_finishedWatching: string;
+  missions_moreMissions: string;
 }
 
 const enUS: Translations = {
@@ -200,6 +206,7 @@ const enUS: Translations = {
   home_tapRewards: 'Tap to see rewards you can redeem.',
   home_earnStarsTitle: 'Earn stars to unlock rewards!',
   home_tapTasks: 'Tap to see tasks you can complete.',
+  home_todaysOptionsBanner: "Tap here for today's options!",
 
   timetable_title: 'Timetable',
   timetable_chooseDay: 'Choose a day',
@@ -281,6 +288,8 @@ const enUS: Translations = {
   register_error: 'Something went wrong. Is the server running?',
 
   greeting_skip: 'Skip',
+  greeting_pickCompanion: 'Who do you want to be with today?',
+  greeting_tapToContinue: 'Tap to continue',
   greeting_hiName: 'Hi {name}! How are you today?',
   greeting_hi: 'Hi! How are you today?',
   greeting_whatDoing: 'What are you trying to do today?',
@@ -318,6 +327,9 @@ const enUS: Translations = {
   missions_missionOfDay: 'Mission of the Day',
   missions_missionOfDayPopupHeading: "Today's Mission!",
   missions_letsGo: "Let's go!",
+  missions_openVideo: 'Open video',
+  missions_finishedWatching: "I've finished watching",
+  missions_moreMissions: 'More missions you can complete',
 };
 
 const enGB: Translations = {
@@ -364,6 +376,7 @@ const ptPT: Translations = {
   home_tapRewards: 'Toca para ver os prémios que podes trocar.',
   home_earnStarsTitle: 'Ganha estrelas para desbloquear prémios!',
   home_tapTasks: 'Toca para ver as tarefas que podes fazer.',
+  home_todaysOptionsBanner: 'Toca aqui para as opções de hoje!',
 
   timetable_title: 'Horário',
   timetable_chooseDay: 'Escolhe um dia',
@@ -445,6 +458,8 @@ const ptPT: Translations = {
   register_error: 'Algo correu mal. O servidor está a funcionar?',
 
   greeting_skip: 'Saltar',
+  greeting_pickCompanion: 'Com quem queres estar hoje?',
+  greeting_tapToContinue: 'Toca para continuar',
   greeting_hiName: 'Olá {name}! Como estás hoje?',
   greeting_hi: 'Olá! Como estás hoje?',
   greeting_whatDoing: 'O que queres fazer hoje?',
@@ -482,6 +497,9 @@ const ptPT: Translations = {
   missions_missionOfDay: 'Missão do Dia',
   missions_missionOfDayPopupHeading: 'A Missão de Hoje!',
   missions_letsGo: 'Vamos lá!',
+  missions_openVideo: 'Abrir vídeo',
+  missions_finishedWatching: 'Já acabei de ver',
+  missions_moreMissions: 'Mais missões que podes completar',
 };
 
 const ptBR: Translations = {
@@ -497,6 +515,7 @@ const ptBR: Translations = {
   home_tapRewards: 'Toque para ver os prêmios que você pode trocar.',
   home_earnStarsTitle: 'Ganhe estrelas para desbloquear prêmios!',
   home_tapTasks: 'Toque para ver as tarefas que você pode fazer.',
+  home_todaysOptionsBanner: 'Toque aqui para as opções de hoje!',
   timetable_title: 'Agenda',
   timetable_chooseDay: 'Escolha um dia',
   timetable_noBlocks: 'Ainda não há atividades para este dia. Peça para seu cuidador adicionar algumas.',
@@ -587,6 +606,7 @@ const es: Translations = {
   home_tapRewards: 'Toca para ver los premios que puedes canjear.',
   home_earnStarsTitle: '¡Gana estrellas para desbloquear premios!',
   home_tapTasks: 'Toca para ver las tareas que puedes hacer.',
+  home_todaysOptionsBanner: '¡Toca aquí para las opciones de hoy!',
 
   timetable_title: 'Horario',
   timetable_chooseDay: 'Elige un día',
@@ -668,6 +688,8 @@ const es: Translations = {
   register_error: 'Algo salió mal. ¿Está el servidor funcionando?',
 
   greeting_skip: 'Saltar',
+  greeting_pickCompanion: '¿Con quién quieres estar hoy?',
+  greeting_tapToContinue: 'Toca para continuar',
   greeting_hiName: '¡Hola {name}! ¿Cómo estás hoy?',
   greeting_hi: '¡Hola! ¿Cómo estás hoy?',
   greeting_whatDoing: '¿Qué quieres hacer hoy?',
@@ -705,6 +727,9 @@ const es: Translations = {
   missions_missionOfDay: 'Misión del Día',
   missions_missionOfDayPopupHeading: '¡La Misión de Hoy!',
   missions_letsGo: '¡Vamos!',
+  missions_openVideo: 'Abrir video',
+  missions_finishedWatching: 'Ya terminé de verlo',
+  missions_moreMissions: 'Más misiones que puedes completar',
 };
 
 const no: Translations = {
@@ -747,6 +772,7 @@ const no: Translations = {
   home_tapRewards: 'Trykk for å se belønninger du kan bruke.',
   home_earnStarsTitle: 'Tjen stjerner for å låse opp belønninger!',
   home_tapTasks: 'Trykk for å se oppgaver du kan gjøre.',
+  home_todaysOptionsBanner: 'Trykk her for dagens valg!',
 
   timetable_title: 'Timeplan',
   timetable_chooseDay: 'Velg en dag',
@@ -828,6 +854,8 @@ const no: Translations = {
   register_error: 'Noe gikk galt. Kjører serveren?',
 
   greeting_skip: 'Hopp over',
+  greeting_pickCompanion: 'Hvem vil du være sammen med i dag?',
+  greeting_tapToContinue: 'Trykk for å fortsette',
   greeting_hiName: 'Hei {name}! Hvordan går det i dag?',
   greeting_hi: 'Hei! Hvordan går det i dag?',
   greeting_whatDoing: 'Hva vil du gjøre i dag?',
@@ -865,6 +893,9 @@ const no: Translations = {
   missions_missionOfDay: 'Dagens Oppdrag',
   missions_missionOfDayPopupHeading: 'Dagens Oppdrag!',
   missions_letsGo: 'Kom igjen!',
+  missions_openVideo: 'Åpne video',
+  missions_finishedWatching: 'Jeg er ferdig med å se',
+  missions_moreMissions: 'Flere oppdrag du kan fullføre',
 };
 
 const fr: Translations = {
@@ -907,6 +938,7 @@ const fr: Translations = {
   home_tapRewards: 'Touche pour voir les récompenses que tu peux échanger.',
   home_earnStarsTitle: 'Gagne des étoiles pour débloquer des récompenses !',
   home_tapTasks: 'Touche pour voir les tâches que tu peux faire.',
+  home_todaysOptionsBanner: "Touche ici pour les options d'aujourd'hui !",
 
   timetable_title: 'Emploi du temps',
   timetable_chooseDay: 'Choisis un jour',
@@ -988,6 +1020,8 @@ const fr: Translations = {
   register_error: 'Un problème est survenu. Le serveur fonctionne-t-il ?',
 
   greeting_skip: 'Passer',
+  greeting_pickCompanion: "Avec qui veux-tu être aujourd'hui ?",
+  greeting_tapToContinue: 'Touche pour continuer',
   greeting_hiName: "Salut {name} ! Comment vas-tu aujourd'hui ?",
   greeting_hi: "Salut ! Comment vas-tu aujourd'hui ?",
   greeting_whatDoing: "Qu'est-ce que tu veux faire aujourd'hui ?",
@@ -1025,6 +1059,9 @@ const fr: Translations = {
   missions_missionOfDay: 'Mission du Jour',
   missions_missionOfDayPopupHeading: 'La Mission du Jour !',
   missions_letsGo: "C'est parti !",
+  missions_openVideo: 'Ouvrir la vidéo',
+  missions_finishedWatching: "J'ai fini de regarder",
+  missions_moreMissions: 'Plus de missions que tu peux accomplir',
 };
 
 const it: Translations = {
@@ -1067,6 +1104,7 @@ const it: Translations = {
   home_tapRewards: 'Tocca per vedere i premi che puoi riscattare.',
   home_earnStarsTitle: 'Guadagna stelle per sbloccare premi!',
   home_tapTasks: 'Tocca per vedere le attività che puoi fare.',
+  home_todaysOptionsBanner: "Tocca qui per le opzioni di oggi!",
 
   timetable_title: 'Orario',
   timetable_chooseDay: 'Scegli un giorno',
@@ -1148,6 +1186,8 @@ const it: Translations = {
   register_error: 'Qualcosa è andato storto. Il server è attivo?',
 
   greeting_skip: 'Salta',
+  greeting_pickCompanion: 'Con chi vuoi stare oggi?',
+  greeting_tapToContinue: 'Tocca per continuare',
   greeting_hiName: 'Ciao {name}! Come stai oggi?',
   greeting_hi: 'Ciao! Come stai oggi?',
   greeting_whatDoing: 'Cosa vuoi fare oggi?',
@@ -1185,6 +1225,9 @@ const it: Translations = {
   missions_missionOfDay: 'Missione del Giorno',
   missions_missionOfDayPopupHeading: 'La Missione di Oggi!',
   missions_letsGo: 'Andiamo!',
+  missions_openVideo: 'Apri video',
+  missions_finishedWatching: 'Ho finito di guardare',
+  missions_moreMissions: 'Altre missioni che puoi completare',
 };
 
 const hu: Translations = {
@@ -1227,6 +1270,7 @@ const hu: Translations = {
   home_tapRewards: 'Koppints, hogy lásd a beváltható jutalmakat.',
   home_earnStarsTitle: 'Szerezz csillagokat a jutalmak feloldásához!',
   home_tapTasks: 'Koppints, hogy lásd az elvégezhető feladatokat.',
+  home_todaysOptionsBanner: 'Koppints ide a mai lehetőségekért!',
 
   timetable_title: 'Napirend',
   timetable_chooseDay: 'Válassz egy napot',
@@ -1308,6 +1352,8 @@ const hu: Translations = {
   register_error: 'Valami hiba történt. Fut a szerver?',
 
   greeting_skip: 'Kihagyás',
+  greeting_pickCompanion: 'Kivel szeretnél ma lenni?',
+  greeting_tapToContinue: 'Koppints a folytatáshoz',
   greeting_hiName: 'Szia {name}! Hogy vagy ma?',
   greeting_hi: 'Szia! Hogy vagy ma?',
   greeting_whatDoing: 'Mit szeretnél ma csinálni?',
@@ -1345,6 +1391,9 @@ const hu: Translations = {
   missions_missionOfDay: 'A Nap Küldetése',
   missions_missionOfDayPopupHeading: 'A Mai Küldetés!',
   missions_letsGo: 'Gyerünk!',
+  missions_openVideo: 'Videó megnyitása',
+  missions_finishedWatching: 'Befejeztem a nézést',
+  missions_moreMissions: 'További küldetések, amiket elvégezhetsz',
 };
 
 export const TRANSLATIONS: Record<LocaleCode, Translations> = {

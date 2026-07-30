@@ -26,4 +26,6 @@ export const STORAGE_KEYS = {
   accessibility: 'accessibility',
   virtaGoMessages: 'virtaGoMessages',
   missionOfDaySeen: 'missionOfDaySeen',
+  todayCompanion: 'todayCompanion',
+  missionWatched: 'missionWatched',
 } as const;

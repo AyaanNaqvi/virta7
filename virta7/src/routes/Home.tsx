@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PartyPopper, ChevronRight, Gift, Sparkles } from 'lucide-react';
 import { PageContainer } from '../components/layout/PageContainer';
@@ -9,12 +10,18 @@ import { useChildData } from '../contexts/ChildDataContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getAvatar } from '../data/avatars';
 import { getTodayWeekday, getTodayDateKey } from '../lib/date';
+import { getTodayCompanion } from '../lib/companion';
+import virtinho from '../assets/virtinho.jpg';
+import virtinha from '../assets/virtinha.jpg';
+
+const COMPANION_IMAGE = { virtinho, virtinha };
 
 export function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { routinesForDay, completeRoutine, stars } = useChildData();
   const { t } = useLanguage();
+  const [companion] = useState(() => (user ? getTodayCompanion(user.id) : null));
 
   const today = getTodayWeekday();
   const todayRoutines = routinesForDay(today);
@@ -110,6 +117,25 @@ export function Home() {
           <ChevronRight className="h-5 w-5 shrink-0 text-text-muted" aria-hidden="true" />
         </Card>
       </button>
+
+      {companion && (
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <img
+            src={COMPANION_IMAGE[companion]}
+            alt=""
+            aria-hidden="true"
+            className="h-32 w-auto select-none rounded-3xl object-cover"
+            draggable={false}
+          />
+          <button
+            type="button"
+            onClick={() => navigate('/greeting?choose=1')}
+            className="min-h-11 w-full rounded-2xl bg-primary px-4 font-bold text-white"
+          >
+            {t('home_todaysOptionsBanner')}
+          </button>
+        </div>
+      )}
     </PageContainer>
   );
 }

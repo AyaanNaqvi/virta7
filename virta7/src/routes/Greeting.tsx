@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CalendarDays, Target, ListChecks, BookOpen, Volume2, VolumeX } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,11 +7,12 @@ import { useReduceMotion } from '../contexts/AccessibilityContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { apiFetch } from '../lib/api';
 import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted } from '../lib/speech';
+import { getTodayCompanion, setTodayCompanion, type Companion } from '../lib/companion';
 import virtinho from '../assets/virtinho.jpg';
 import virtinha from '../assets/virtinha.jpg';
 
 type Speaker = 'virtinho' | 'virtinha';
-type Stage = 'dialogue' | 'choose' | 'confirm';
+type Stage = 'pickCompanion' | 'dialogue' | 'choose' | 'confirm';
 
 interface DialogueStep {
   speaker: Speaker;
@@ -27,10 +28,12 @@ const CONFIRM_DURATION_MS = 900;
 
 export function Greeting() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, token, updateUser } = useAuth();
   const reduceMotion = useReduceMotion();
   const { t, locale } = useLanguage();
   const isFirstTime = !user?.onboarded;
+  const jumpToChoose = searchParams.get('choose') === '1';
 
   const OPTIONS = [
     { to: '/timetable', label: t('greeting_myTimetable'), icon: CalendarDays },
@@ -61,7 +64,12 @@ export function Greeting() {
     ];
   });
   const [stepIndex, setStepIndex] = useState(0);
-  const [stage, setStage] = useState<Stage>('dialogue');
+  const [companion, setCompanion] = useState<Companion | null>(() => (user ? getTodayCompanion(user.id) : null));
+  const [stage, setStage] = useState<Stage>(() => {
+    if (jumpToChoose) return 'choose';
+    if (!companion) return 'pickCompanion';
+    return 'dialogue';
+  });
   const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
   const markedOnboarded = useRef(false);
 
@@ -95,6 +103,12 @@ export function Greeting() {
     });
   }
 
+  function pickCompanion(c: Companion) {
+    if (user) setTodayCompanion(user.id, c);
+    setCompanion(c);
+    setStage('dialogue');
+  }
+
   function advance() {
     if (stage !== 'dialogue') return;
     if (stepIndex + 1 >= steps.length) {
@@ -121,19 +135,21 @@ export function Greeting() {
       <div className="relative z-10 flex items-center justify-between">
         <div className="flex gap-2" aria-hidden="true">
           <span className="h-2 w-8 rounded-full bg-white" />
-          <span className={`h-2 w-8 rounded-full ${stage !== 'dialogue' ? 'bg-white' : 'bg-white/30'}`} />
+          <span className={`h-2 w-8 rounded-full ${stage === 'choose' || stage === 'confirm' ? 'bg-white' : 'bg-white/30'}`} />
         </div>
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={toggleMuted}
-            aria-label={muted ? 'Unmute voice' : 'Mute voice'}
-            aria-pressed={muted}
-            className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-white"
-          >
-            {muted ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
-          </button>
-          {stage !== 'confirm' && (
+          {stage !== 'pickCompanion' && (
+            <button
+              type="button"
+              onClick={toggleMuted}
+              aria-label={muted ? 'Unmute voice' : 'Mute voice'}
+              aria-pressed={muted}
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-white"
+            >
+              {muted ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
+            </button>
+          )}
+          {stage !== 'confirm' && stage !== 'pickCompanion' && (
             <button
               type="button"
               onClick={goHome}
@@ -144,6 +160,33 @@ export function Greeting() {
           )}
         </div>
       </div>
+
+      {stage === 'pickCompanion' && (
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-6 px-2 text-center">
+          <p className="text-xl font-bold text-white">{t('greeting_pickCompanion')}</p>
+          <div className="grid w-full max-w-sm grid-cols-2 gap-4">
+            {(['virtinho', 'virtinha'] as Companion[]).map((c) => (
+              <motion.button
+                key={c}
+                type="button"
+                onClick={() => pickCompanion(c)}
+                whileTap={reduceMotion ? undefined : { scale: 0.96 }}
+                className="flex flex-col items-center gap-3 rounded-3xl border-2 border-border bg-surface p-4 active:bg-surface-alt"
+              >
+                <span className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-primary/10">
+                  <img
+                    src={CHARACTERS[c].image}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-full w-full object-cover object-top"
+                  />
+                </span>
+                <span className="text-lg font-bold text-text">{CHARACTERS[c].name}</span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {stage === 'dialogue' && (
         <button
@@ -162,6 +205,17 @@ export function Greeting() {
           >
             {step.text}
           </motion.div>
+
+          {isFirstTime && stepIndex === 0 && (
+            <motion.p
+              initial={reduceMotion ? { opacity: 0.6 } : { opacity: 0.3 }}
+              animate={reduceMotion ? { opacity: 0.6 } : { opacity: [0.3, 0.8, 0.3] }}
+              transition={reduceMotion ? undefined : { duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+              className="text-center text-sm font-semibold text-white"
+            >
+              {t('greeting_tapToContinue')}
+            </motion.p>
+          )}
 
           <div className="flex items-end justify-between">
             {(['virtinho', 'virtinha'] as Speaker[]).map((speaker) => {
@@ -184,7 +238,7 @@ export function Greeting() {
         </button>
       )}
 
-      {stage !== 'dialogue' && (
+      {(stage === 'choose' || stage === 'confirm') && (
         <div className="relative z-10 flex flex-1 flex-col justify-end gap-4 pb-4">
           <motion.div
             key={stage}

@@ -6,6 +6,7 @@ import { Card } from '../components/ui/Card';
 import { VideoCard } from '../components/video/VideoCard';
 import { apiFetch } from '../lib/api';
 import { loadJSON, saveJSON, STORAGE_KEYS } from '../lib/storage';
+import { isMissionWatchedToday, setMissionWatchedToday } from '../lib/missionWatched';
 import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -83,6 +84,12 @@ export function Missions() {
   const [showPopup, setShowPopup] = useState(false);
   const { user } = useAuth();
   const { t } = useLanguage();
+  const [watched, setWatched] = useState(() => (user ? isMissionWatchedToday(user.id) : false));
+
+  function handleMissionComplete() {
+    if (user) setMissionWatchedToday(user.id);
+    setWatched(true);
+  }
 
   useEffect(() => {
     apiFetch<{ videos: Video[] }>('/videos')
@@ -159,21 +166,40 @@ export function Missions() {
       <h1 className="mb-1 text-2xl font-bold text-text">{t('missions_title')}</h1>
       <p className="mb-6 text-text-muted">{t('missions_subtitle')}</p>
 
-      {missionOfDay && (
-        <div className="mb-6">
-          <div className="mb-2 flex items-center gap-2">
+      {missionOfDay && !watched && (
+        <div className="flex min-h-[65vh] flex-col items-center justify-center gap-3">
+          <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-accent" aria-hidden="true" />
             <h2 className="text-lg font-bold text-text">{t('missions_missionOfDay')}</h2>
           </div>
-          <VideoCard video={missionOfDay} />
+          <div className="w-full max-w-sm">
+            <VideoCard video={missionOfDay} onComplete={handleMissionComplete} />
+          </div>
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
-        {rest.map((video) => (
-          <VideoCard key={video.id} video={video} />
-        ))}
-      </div>
+      {missionOfDay && watched && (
+        <>
+          <div className="mb-6">
+            <div className="mb-2 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-accent" aria-hidden="true" />
+              <h2 className="text-lg font-bold text-text">{t('missions_missionOfDay')}</h2>
+            </div>
+            <VideoCard video={missionOfDay} />
+          </div>
+
+          {rest.length > 0 && (
+            <>
+              <h2 className="mb-3 text-lg font-bold text-text">{t('missions_moreMissions')}</h2>
+              <div className="flex flex-col gap-3">
+                {rest.map((video) => (
+                  <VideoCard key={video.id} video={video} />
+                ))}
+              </div>
+            </>
+          )}
+        </>
+      )}
 
       <AnimatePresence>
         {showPopup && missionOfDay && <MissionOfDayPopup video={missionOfDay} onDismiss={dismissPopup} />}
