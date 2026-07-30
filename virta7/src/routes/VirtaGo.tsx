@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Volume2, VolumeX, Mic, RotateCcw } from 'lucide-react';
+import { Send, Volume2, VolumeX, Mic } from 'lucide-react';
 import type { ChatMessage } from '../types';
 import { loadJSON, saveJSON, removeKey, STORAGE_KEYS } from '../lib/storage';
 import { getVirtaReply } from '../lib/virtaChat';
@@ -221,10 +221,9 @@ export function VirtaGo() {
         <button
           type="button"
           onClick={() => setConfirmingReset(true)}
-          aria-label={t('virtago_resetChat')}
-          className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-text-muted"
+          className="flex min-h-11 items-center justify-center rounded-xl px-3 text-sm font-semibold text-text-muted"
         >
-          <RotateCcw className="h-5 w-5" aria-hidden="true" />
+          {t('virtago_resetChat')}
         </button>
         <button
           type="button"
