@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PartyPopper, ChevronRight, Gift, Sparkles } from 'lucide-react';
+import { PartyPopper, ChevronRight, ChevronDown, Gift, Sparkles } from 'lucide-react';
 import { PageContainer } from '../components/layout/PageContainer';
 import { Card } from '../components/ui/Card';
 import { StarBadge } from '../components/ui/StarBadge';
@@ -130,9 +130,10 @@ export function Home() {
           <button
             type="button"
             onClick={() => navigate('/greeting?choose=1')}
-            className="min-h-11 w-full rounded-2xl bg-primary px-4 font-bold text-white"
+            className="flex min-h-11 flex-col items-center gap-0.5 text-sm font-semibold text-text-muted"
           >
             {t('home_todaysOptionsBanner')}
+            <ChevronDown className="h-4 w-4 animate-bounce" aria-hidden="true" />
           </button>
         </div>
       )}

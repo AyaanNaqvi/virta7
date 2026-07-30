@@ -33,6 +33,10 @@ export function Greeting() {
   const reduceMotion = useReduceMotion();
   const { t, locale } = useLanguage();
   const isFirstTime = !user?.onboarded;
+  // markOnboarded() flips user.onboarded (and so isFirstTime) mid-flow, right
+  // when the tutorial ends — freeze the value from mount so stage-flow
+  // decisions later in this session aren't affected by that flip.
+  const wasFirstTimeRef = useRef(isFirstTime);
   const jumpToChoose = searchParams.get('choose') === '1';
 
   const OPTIONS = [
@@ -67,7 +71,9 @@ export function Greeting() {
   const [companion, setCompanion] = useState<Companion | null>(() => (user ? getTodayCompanion(user.id) : null));
   const [stage, setStage] = useState<Stage>(() => {
     if (jumpToChoose) return 'choose';
-    if (!companion) return 'pickCompanion';
+    // First-time users do the tutorial first, then pick a companion afterward;
+    // returning users (who have no tutorial to sit through) pick first.
+    if (!companion && !wasFirstTimeRef.current) return 'pickCompanion';
     return 'dialogue';
   });
   const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
@@ -106,14 +112,16 @@ export function Greeting() {
   function pickCompanion(c: Companion) {
     if (user) setTodayCompanion(user.id, c);
     setCompanion(c);
-    setStage('dialogue');
+    // First-timers already did the dialogue before this; returning users
+    // still need to go through their short daily greeting.
+    setStage(wasFirstTimeRef.current ? 'choose' : 'dialogue');
   }
 
   function advance() {
     if (stage !== 'dialogue') return;
     if (stepIndex + 1 >= steps.length) {
       markOnboarded();
-      setStage('choose');
+      setStage(wasFirstTimeRef.current && !companion ? 'pickCompanion' : 'choose');
     } else {
       setStepIndex((i) => i + 1);
     }
@@ -206,7 +214,7 @@ export function Greeting() {
             {step.text}
           </motion.div>
 
-          {isFirstTime && stepIndex === 0 && (
+          {isFirstTime && (
             <motion.p
               initial={reduceMotion ? { opacity: 0.6 } : { opacity: 0.3 }}
               animate={reduceMotion ? { opacity: 0.6 } : { opacity: [0.3, 0.8, 0.3] }}
