@@ -90,7 +90,13 @@ export function VirtaGo() {
     if (!character) return;
     const key = `${STORAGE_KEYS.virtaGoMessages}:${user?.id ?? 'anonymous'}:${character}`;
     const stored = loadJSON<ChatMessage[]>(key, []);
-    if (stored.length > 0) {
+    // A single stored "virta" message is always just the auto-greeting (never
+    // a real reply, since that requires a user message first) — regenerate it
+    // in the current language instead of trusting the cached text, so
+    // switching languages doesn't leave a stale greeting from before the
+    // switch. Real conversations (more than one message) are left as-is.
+    const isJustStaleGreeting = stored.length === 1 && stored[0].sender === 'virta';
+    if (stored.length > 0 && !isJustStaleGreeting) {
       setMessages(stored);
     } else {
       const name = CHARACTERS.find((c) => c.id === character)?.name ?? '';
