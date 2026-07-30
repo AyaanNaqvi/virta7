@@ -487,7 +487,7 @@ const ptPT: Translations = {
   virtago_typing: '{name} está a escrever…',
   virtago_placeholder: 'Escreve uma mensagem…',
   virtago_listening: 'A ouvir…',
-  virtago_hiImName: 'Olá! Eu sou o/a {name}. Em que estás a pensar hoje?',
+  virtago_hiImName: 'Olá! Eu sou {name}. Em que estás a pensar hoje?',
 
   missions_title: 'Missões',
   missions_loading: 'A carregar…',
@@ -560,7 +560,7 @@ const ptBR: Translations = {
   greeting_diaryIntro: 'O Diário é um lugar privado para você escrever sobre o seu dia.',
   greeting_pickSomething: 'Agora vamos escolher algo para fazer!',
   greeting_whatWouldYouLikeToDo: 'O que você gostaria de fazer?',
-  virtago_hiImName: 'Oi! Eu sou o/a {name}. No que você está pensando hoje?',
+  virtago_hiImName: 'Oi! Eu sou {name}. No que você está pensando hoje?',
   missions_loading: 'Carregando…',
   missions_couldntLoad: 'Não foi possível carregar os vídeos agora. Peça ao seu tutor para verificar a conexão.',
   missions_noVideos: 'O tutor ainda não adicionou vídeos.',
