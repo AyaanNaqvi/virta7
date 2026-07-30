@@ -252,7 +252,7 @@ const enUS: Translations = {
   profile_language: 'Language',
 
   login_title: 'Log in',
-  login_welcomeBack: 'Welcome back to Virta7.',
+  login_welcomeBack: 'Welcome to Virta7.',
   login_tutorAdmin: 'Tutor / Admin',
   login_childsCode: "Child's code",
   login_email: 'Email',
@@ -416,7 +416,7 @@ const ptPT: Translations = {
   profile_language: 'Idioma',
 
   login_title: 'Iniciar sessão',
-  login_welcomeBack: 'Bem-vindo de volta ao Virta7.',
+  login_welcomeBack: 'Bem-vindo ao Virta7.',
   login_tutorAdmin: 'Tutor / Admin',
   login_childsCode: 'Código da criança',
   login_email: 'Email',
@@ -519,7 +519,7 @@ const ptBR: Translations = {
   profile_logOut: 'Sair',
   profile_language: 'Idioma',
   login_title: 'Entrar',
-  login_welcomeBack: 'Bem-vindo de volta ao Virta7.',
+  login_welcomeBack: 'Bem-vindo ao Virta7.',
   login_childsCode: 'Código da criança',
   login_password: 'Senha',
   login_logIn: 'Entrar',
@@ -639,7 +639,7 @@ const es: Translations = {
   profile_language: 'Idioma',
 
   login_title: 'Iniciar sesión',
-  login_welcomeBack: 'Bienvenido de nuevo a Virta7.',
+  login_welcomeBack: 'Bienvenido a Virta7.',
   login_tutorAdmin: 'Tutor / Admin',
   login_childsCode: 'Código del niño',
   login_email: 'Correo electrónico',
@@ -799,7 +799,7 @@ const no: Translations = {
   profile_language: 'Språk',
 
   login_title: 'Logg inn',
-  login_welcomeBack: 'Velkommen tilbake til Virta7.',
+  login_welcomeBack: 'Velkommen til Virta7.',
   login_tutorAdmin: 'Foresatt / Admin',
   login_childsCode: 'Barnets kode',
   login_email: 'E-post',
@@ -959,7 +959,7 @@ const fr: Translations = {
   profile_language: 'Langue',
 
   login_title: 'Connexion',
-  login_welcomeBack: 'Bon retour sur Virta7.',
+  login_welcomeBack: 'Bienvenue sur Virta7.',
   login_tutorAdmin: 'Tuteur / Admin',
   login_childsCode: "Code de l'enfant",
   login_email: 'Email',
@@ -1119,7 +1119,7 @@ const it: Translations = {
   profile_language: 'Lingua',
 
   login_title: 'Accedi',
-  login_welcomeBack: 'Bentornato su Virta7.',
+  login_welcomeBack: 'Benvenuto su Virta7.',
   login_tutorAdmin: 'Tutor / Admin',
   login_childsCode: 'Codice del bambino',
   login_email: 'Email',
@@ -1279,7 +1279,7 @@ const hu: Translations = {
   profile_language: 'Nyelv',
 
   login_title: 'Bejelentkezés',
-  login_welcomeBack: 'Üdvözlünk újra a Virta7-ben.',
+  login_welcomeBack: 'Üdvözlünk a Virta7-ben.',
   login_tutorAdmin: 'Gondviselő / Admin',
   login_childsCode: 'Gyermek kódja',
   login_email: 'Email',
