@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { LogOut, UserPlus, ChevronRight, Check, X, Clock } from 'lucide-react';
+import { LogOut, UserPlus, ChevronRight, Check, X, Clock, Copy } from 'lucide-react';
 import { PageContainer } from '../../components/layout/PageContainer';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -185,6 +185,19 @@ export function TutorDashboard() {
   const [children, setChildren] = useState<BackendChild[]>([]);
   const [tasks, setTasks] = useState<BackendTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  async function handleCopyCode(e: React.MouseEvent, childId: string, code: string) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedId(childId);
+      setTimeout(() => setCopiedId((id) => (id === childId ? null : id)), 1500);
+    } catch {
+      // Clipboard access unavailable; nothing more we can do here.
+    }
+  }
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -250,8 +263,8 @@ export function TutorDashboard() {
           {children.map((child) => {
             const Icon = AVATAR_OPTIONS.find((a) => a.id === child.avatarId)?.icon ?? AVATAR_OPTIONS[0].icon;
             return (
-              <Link key={child.id} to={`/tutor/child/${child.id}`} className="block">
-                <Card className="flex items-center gap-4">
+              <Card key={child.id} className="flex items-center gap-4">
+                <Link to={`/tutor/child/${child.id}`} className="flex flex-1 items-center gap-4">
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                     <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
                   </span>
@@ -261,9 +274,23 @@ export function TutorDashboard() {
                       Login code: <span className="font-mono font-semibold text-text">{child.loginCode}</span>
                     </p>
                   </div>
+                </Link>
+                <button
+                  type="button"
+                  onClick={(e) => handleCopyCode(e, child.id, child.loginCode)}
+                  aria-label="Copy login code"
+                  className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl text-text-muted"
+                >
+                  {copiedId === child.id ? (
+                    <Check className="h-5 w-5 text-secondary" aria-hidden="true" />
+                  ) : (
+                    <Copy className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </button>
+                <Link to={`/tutor/child/${child.id}`}>
                   <ChevronRight className="h-5 w-5 shrink-0 text-text-muted" aria-hidden="true" />
-                </Card>
-              </Link>
+                </Link>
+              </Card>
             );
           })}
         </div>
