@@ -9,6 +9,7 @@ import bgGreen from '../../assets/bg-green.mp4';
 // (Home, Virta, Missions, Timetable, Diary, Tasks, Stars, Profile) share a
 // background: blue, purple, green, orange, red, purple, orange, green.
 const ROUTE_BACKGROUND: Record<string, string> = {
+  '/login': bgBlue,
   '/home': bgBlue,
   '/virta-go': bgPurple,
   '/missions': bgGreen,
