@@ -1,16 +1,28 @@
 import { useLocation } from 'react-router-dom';
+import bgBlue from '../../assets/bg-blue.mp4';
 import bgRed from '../../assets/bg-red.mp4';
 import bgPurple from '../../assets/bg-purple.mp4';
 import bgOrange from '../../assets/bg-orange.mp4';
 import bgGreen from '../../assets/bg-green.mp4';
 
-// Missions, Home, and Virta Go each get their own distinct background; every
-// other screen shares a common one (only 4 videos exist for many more screens).
+// Jumbled on purpose so no two screens next to each other in the bottom nav
+// (Home, Virta, Missions, Timetable, Diary, Tasks, Stars, Profile) share a
+// background: blue, purple, green, orange, red, purple, orange, green.
+const ROUTE_BACKGROUND: Record<string, string> = {
+  '/home': bgBlue,
+  '/virta-go': bgPurple,
+  '/missions': bgGreen,
+  '/timetable': bgOrange,
+  '/diary': bgRed,
+  '/tasks': bgPurple,
+  '/stars': bgOrange,
+  '/profile': bgGreen,
+  '/greeting': bgRed,
+};
+
 function backgroundFor(pathname: string): string {
-  if (pathname.startsWith('/missions')) return bgGreen;
-  if (pathname.startsWith('/home')) return bgRed;
-  if (pathname.startsWith('/virta-go')) return bgPurple;
-  return bgOrange;
+  if (pathname.startsWith('/diary')) return bgRed; // covers /diary and /diary/new
+  return ROUTE_BACKGROUND[pathname] ?? bgOrange;
 }
 
 export function AppBackground() {
