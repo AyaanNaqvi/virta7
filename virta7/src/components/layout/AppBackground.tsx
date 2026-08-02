@@ -5,12 +5,14 @@ import bgPurple from '../../assets/bg-purple.mp4';
 import bgOrange from '../../assets/bg-orange.mp4';
 import bgGreen from '../../assets/bg-green.mp4';
 
-// Jumbled on purpose so no two screens next to each other in the bottom nav
-// (Home, Virta, Missions, Timetable, Diary, Tasks, Stars, Profile) share a
-// background: blue, purple, green, orange, red, purple, orange, green.
+// Blue everywhere before the child is really "in" the app (login, register,
+// the greeting/tutorial) and on Home itself. Every other screen gets a
+// jumbled color, arranged so no two adjacent bottom-nav screens match:
+// purple, green, orange, red, purple, orange, green.
 const ROUTE_BACKGROUND: Record<string, string> = {
   '/login': bgBlue,
   '/register': bgBlue,
+  '/greeting': bgBlue,
   '/home': bgBlue,
   '/virta-go': bgPurple,
   '/missions': bgGreen,
@@ -19,7 +21,6 @@ const ROUTE_BACKGROUND: Record<string, string> = {
   '/tasks': bgPurple,
   '/stars': bgOrange,
   '/profile': bgGreen,
-  '/greeting': bgRed,
 };
 
 function backgroundFor(pathname: string): string {
