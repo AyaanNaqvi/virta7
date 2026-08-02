@@ -10,6 +10,7 @@ import bgGreen from '../../assets/bg-green.mp4';
 // background: blue, purple, green, orange, red, purple, orange, green.
 const ROUTE_BACKGROUND: Record<string, string> = {
   '/login': bgBlue,
+  '/register': bgBlue,
   '/home': bgBlue,
   '/virta-go': bgPurple,
   '/missions': bgGreen,
