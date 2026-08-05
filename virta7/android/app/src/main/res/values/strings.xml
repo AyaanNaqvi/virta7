@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Virta7</string>
-    <string name="title_activity_main">Virta7</string>
+    <string name="app_name">Virta Go</string>
+    <string name="title_activity_main">Virta Go</string>
     <string name="package_name">com.virta7.app</string>
     <string name="custom_url_scheme">com.virta7.app</string>
 </resources>
