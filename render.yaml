@@ -5,11 +5,13 @@ services:
     rootDir: virta7-server
     buildCommand: npm install
     startCommand: npm start
-    plan: free
+    plan: starter
     envVars:
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_CODE
         sync: false
       - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DATABASE_URL
         sync: false

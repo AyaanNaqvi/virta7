@@ -10,9 +10,10 @@ import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted } from '../lib/speech'
 import { getTodayCompanion, setTodayCompanion, type Companion } from '../lib/companion';
 import virtinho from '../assets/virtinho.jpg';
 import virtinha from '../assets/virtinha.jpg';
+import virtagoSplash from '../assets/virtago-splash.jpg';
 
 type Speaker = 'virtinho' | 'virtinha';
-type Stage = 'pickCompanion' | 'dialogue' | 'choose' | 'confirm';
+type Stage = 'splash' | 'pickCompanion' | 'dialogue' | 'choose' | 'confirm';
 
 interface DialogueStep {
   speaker: Speaker;
@@ -69,13 +70,9 @@ export function Greeting() {
   });
   const [stepIndex, setStepIndex] = useState(0);
   const [companion, setCompanion] = useState<Companion | null>(() => (user ? getTodayCompanion(user.id) : null));
-  const [stage, setStage] = useState<Stage>(() => {
-    if (jumpToChoose) return 'choose';
-    // First-time users do the tutorial first, then pick a companion afterward;
-    // returning users (who have no tutorial to sit through) pick first.
-    if (!companion && !wasFirstTimeRef.current) return 'pickCompanion';
-    return 'dialogue';
-  });
+  // The splash always comes first on every login; dismissSplash() below
+  // routes into whichever stage the old initializer used to pick directly.
+  const [stage, setStage] = useState<Stage>('splash');
   const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
   const markedOnboarded = useRef(false);
 
@@ -107,6 +104,14 @@ export function Greeting() {
     apiFetch('/me', { method: 'PATCH', token, body: { onboarded: true } }).catch(() => {
       // best-effort; local state is already updated
     });
+  }
+
+  function dismissSplash() {
+    if (jumpToChoose) return setStage('choose');
+    // First-time users do the tutorial first, then pick a companion afterward;
+    // returning users (who have no tutorial to sit through) pick first.
+    if (!companion && !wasFirstTimeRef.current) return setStage('pickCompanion');
+    setStage('dialogue');
   }
 
   function pickCompanion(c: Companion) {
@@ -146,7 +151,7 @@ export function Greeting() {
           <span className={`h-2 w-8 rounded-full ${stage === 'choose' || stage === 'confirm' ? 'bg-white' : 'bg-white/30'}`} />
         </div>
         <div className="flex items-center gap-1">
-          {stage !== 'pickCompanion' && (
+          {stage !== 'pickCompanion' && stage !== 'splash' && (
             <button
               type="button"
               onClick={toggleMuted}
@@ -157,7 +162,7 @@ export function Greeting() {
               {muted ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
             </button>
           )}
-          {stage !== 'confirm' && stage !== 'pickCompanion' && (
+          {stage !== 'confirm' && stage !== 'pickCompanion' && stage !== 'splash' && (
             <button
               type="button"
               onClick={goHome}
@@ -168,6 +173,33 @@ export function Greeting() {
           )}
         </div>
       </div>
+
+      {stage === 'splash' && (
+        <button
+          type="button"
+          onClick={dismissSplash}
+          aria-label={t('greeting_tapToContinue')}
+          className="relative z-10 flex flex-1 flex-col items-center justify-center gap-6 px-4"
+        >
+          <motion.img
+            initial={reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
+            src={virtagoSplash}
+            alt="Virta Go"
+            className="w-full max-w-xs rounded-3xl object-contain shadow-lg"
+            draggable={false}
+          />
+          <motion.p
+            initial={reduceMotion ? { opacity: 0.6 } : { opacity: 0.3 }}
+            animate={reduceMotion ? { opacity: 0.6 } : { opacity: [0.3, 0.8, 0.3] }}
+            transition={reduceMotion ? undefined : { duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+            className="text-center text-sm font-semibold text-white"
+          >
+            {t('greeting_tapToContinue')}
+          </motion.p>
+        </button>
+      )}
 
       {stage === 'pickCompanion' && (
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-6 px-2 text-center">

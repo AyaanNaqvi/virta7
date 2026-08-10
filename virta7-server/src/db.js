@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import pg from 'pg';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
@@ -18,20 +19,44 @@ function defaultData() {
   };
 }
 
-function load() {
+// When DATABASE_URL is set (Render/Vercel Postgres), the whole dataset lives
+// in one JSONB row there instead of a local file — local disk on most hosts
+// (Render's free tier included) doesn't survive restarts/redeploys, so
+// registered accounts and everything else would otherwise vanish. Falls back
+// to the on-disk JSON file when no DATABASE_URL is set, so local dev without
+// a database configured keeps working exactly as before.
+const pool = process.env.DATABASE_URL
+  ? new pg.Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
+  : null;
+
+async function loadFromPostgres() {
+  await pool.query('CREATE TABLE IF NOT EXISTS app_data (id INTEGER PRIMARY KEY, data JSONB NOT NULL)');
+  const { rows } = await pool.query('SELECT data FROM app_data WHERE id = 1');
+  if (rows.length) return { ...defaultData(), ...rows[0].data };
+  const fresh = defaultData();
+  await pool.query('INSERT INTO app_data (id, data) VALUES (1, $1)', [JSON.stringify(fresh)]);
+  return fresh;
+}
+
+function loadFromDisk() {
   if (!existsSync(DB_PATH)) {
-    save(defaultData());
+    writeFileSync(DB_PATH, JSON.stringify(defaultData(), null, 2), 'utf-8');
   }
   const raw = readFileSync(DB_PATH, 'utf-8');
-  const parsed = JSON.parse(raw);
-  return { ...defaultData(), ...parsed };
+  return { ...defaultData(), ...JSON.parse(raw) };
 }
 
-function save(data) {
-  writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
-}
+let data = pool ? await loadFromPostgres() : loadFromDisk();
 
-let data = load();
+function save() {
+  if (pool) {
+    pool.query('UPDATE app_data SET data = $1 WHERE id = 1', [JSON.stringify(data)]).catch((err) => {
+      console.error('Failed to persist to Postgres:', err);
+    });
+  } else {
+    writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
+  }
+}
 
 export const db = {
   get users() {
@@ -53,10 +78,10 @@ export const db = {
     return data.diaryEntries;
   },
   persist() {
-    save(data);
+    save();
   },
   reset() {
     data = defaultData();
-    save(data);
+    save();
   },
 };
