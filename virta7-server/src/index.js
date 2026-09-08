@@ -112,6 +112,13 @@ function awardStars(child, amount, reason) {
   child.starsHistory.push({ date: new Date().toISOString(), amount, reason });
 }
 
+function normalizeQuizQuestions(input) {
+  if (!Array.isArray(input)) return [];
+  return input
+    .filter((q) => q && typeof q.question === 'string' && q.question.trim() && ['yes', 'no'].includes(q.correctAnswer))
+    .map((q) => ({ id: q.id || nanoid(8), question: q.question.trim(), correctAnswer: q.correctAnswer }));
+}
+
 async function notifyTutorOfPendingTask(child, task) {
   if (!child.tutorId) return;
   const tutor = findUser(child.tutorId);
@@ -606,7 +613,7 @@ app.get('/api/videos', (req, res) => {
 });
 
 app.post('/api/videos', requireAuth, requireRole('admin'), (req, res) => {
-  const { title, description, url } = req.body ?? {};
+  const { title, description, url, quizQuestions, quizStarReward } = req.body ?? {};
   if (!title || !url) {
     return res.status(400).json({ error: 'title and url are required' });
   }
@@ -615,6 +622,8 @@ app.post('/api/videos', requireAuth, requireRole('admin'), (req, res) => {
     title,
     description: description || '',
     url,
+    quizQuestions: normalizeQuizQuestions(quizQuestions),
+    quizStarReward: Math.max(1, Number(quizStarReward) || 2),
     createdAt: new Date().toISOString(),
   };
   db.videos.push(video);
@@ -623,15 +632,23 @@ app.post('/api/videos', requireAuth, requireRole('admin'), (req, res) => {
 });
 
 app.post('/api/videos/upload', requireAuth, requireRole('admin'), upload.single('file'), (req, res) => {
-  const { title, description } = req.body ?? {};
+  const { title, description, quizStarReward } = req.body ?? {};
   if (!title || !req.file) {
     return res.status(400).json({ error: 'title and a video file are required' });
+  }
+  let quizQuestions = [];
+  try {
+    quizQuestions = normalizeQuizQuestions(JSON.parse(req.body.quizQuestions || '[]'));
+  } catch {
+    quizQuestions = [];
   }
   const video = {
     id: nanoid(10),
     title,
     description: description || '',
     url: `/uploads/${req.file.filename}`,
+    quizQuestions,
+    quizStarReward: Math.max(1, Number(quizStarReward) || 2),
     createdAt: new Date().toISOString(),
   };
   db.videos.push(video);
@@ -642,12 +659,35 @@ app.post('/api/videos/upload', requireAuth, requireRole('admin'), upload.single(
 app.patch('/api/videos/:id', requireAuth, requireRole('admin'), (req, res) => {
   const video = db.videos.find((v) => v.id === req.params.id);
   if (!video) return res.status(404).json({ error: 'Video not found' });
-  const { title, description, url } = req.body ?? {};
+  const { title, description, url, quizQuestions, quizStarReward } = req.body ?? {};
   if (title !== undefined) video.title = title;
   if (description !== undefined) video.description = description;
   if (url !== undefined) video.url = url;
+  if (quizQuestions !== undefined) video.quizQuestions = normalizeQuizQuestions(quizQuestions);
+  if (quizStarReward !== undefined) video.quizStarReward = Math.max(1, Number(quizStarReward) || 2);
   db.persist();
   res.json({ video });
+});
+
+app.post('/api/videos/:id/quiz-answer', requireAuth, requireRole('child'), (req, res) => {
+  const video = db.videos.find((v) => v.id === req.params.id);
+  if (!video) return res.status(404).json({ error: 'Video not found' });
+  const { questionId, answer } = req.body ?? {};
+  const question = (video.quizQuestions ?? []).find((q) => q.id === questionId);
+  if (!question || !['yes', 'no'].includes(answer)) {
+    return res.status(400).json({ error: 'Invalid question or answer' });
+  }
+  const child = findUser(req.auth.sub);
+  const correct = question.correctAnswer === answer;
+  const dedupeKey = `${video.id}:${questionId}`;
+  child.answeredQuizQuestions = child.answeredQuizQuestions ?? [];
+  const alreadyRewarded = child.answeredQuizQuestions.includes(dedupeKey);
+  if (correct && !alreadyRewarded) {
+    child.answeredQuizQuestions.push(dedupeKey);
+    awardStars(child, video.quizStarReward ?? 2, `Quiz: ${question.question}`);
+  }
+  db.persist();
+  res.json({ correct, alreadyRewarded, starsTotal: child.starsTotal });
 });
 
 app.delete('/api/videos/:id', requireAuth, requireRole('admin'), (req, res) => {

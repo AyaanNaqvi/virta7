@@ -31,6 +31,7 @@ interface ChildDataContextValue {
   redeemReward: (id: string) => Promise<{ ok: boolean; error?: string }>;
   diaryEntries: BackendDiaryEntry[];
   addDiaryEntry: (text: string) => Promise<void>;
+  answerQuizQuestion: (videoId: string, questionId: string, answer: 'yes' | 'no') => Promise<{ correct: boolean }>;
   stars: { total: number; history: StarsHistoryEntry[] };
   refresh: () => Promise<void>;
 }
@@ -148,6 +149,20 @@ export function ChildDataProvider({ children }: { children: ReactNode }) {
     [token]
   );
 
+  const answerQuizQuestion = useCallback(
+    async (videoId: string, questionId: string, answer: 'yes' | 'no') => {
+      const data = await apiFetch<{ correct: boolean; alreadyRewarded: boolean; starsTotal: number }>(
+        `/videos/${videoId}/quiz-answer`,
+        { method: 'POST', token, body: { questionId, answer } }
+      );
+      if (data.correct && !data.alreadyRewarded) {
+        recordStarsChange(data.starsTotal, 'Quiz answer correct');
+      }
+      return { correct: data.correct };
+    },
+    [token, recordStarsChange]
+  );
+
   const value = useMemo<ChildDataContextValue>(
     () => ({
       loading,
@@ -160,6 +175,7 @@ export function ChildDataProvider({ children }: { children: ReactNode }) {
       redeemReward,
       diaryEntries,
       addDiaryEntry,
+      answerQuizQuestion,
       stars: { total: starsTotal, history: starsHistory },
       refresh,
     }),
@@ -174,6 +190,7 @@ export function ChildDataProvider({ children }: { children: ReactNode }) {
       redeemReward,
       diaryEntries,
       addDiaryEntry,
+      answerQuizQuestion,
       starsTotal,
       starsHistory,
       refresh,

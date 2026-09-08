@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Plus, Trash2, UploadCloud } from 'lucide-react';
+import { LogOut, Plus, Trash2, UploadCloud, HelpCircle } from 'lucide-react';
 import { PageContainer } from '../../components/layout/PageContainer';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -10,6 +10,90 @@ import { apiFetch, apiUpload, ApiError } from '../../lib/api';
 import type { Video } from '../../types/backend';
 
 type Source = 'link' | 'upload';
+type QuizQuestionDraft = { id?: string; question: string; correctAnswer: 'yes' | 'no' };
+
+// Shared by the "add a mission" form and each existing video's quiz editor —
+// lets an admin build the yes/no questions shown to the child right after
+// they finish watching, plus how many stars each correct answer is worth.
+function QuizEditor({
+  questions,
+  onQuestionsChange,
+  starReward,
+  onStarRewardChange,
+}: {
+  questions: QuizQuestionDraft[];
+  onQuestionsChange: (qs: QuizQuestionDraft[]) => void;
+  starReward: number;
+  onStarRewardChange: (n: number) => void;
+}) {
+  function addQuestion() {
+    onQuestionsChange([...questions, { question: '', correctAnswer: 'yes' }]);
+  }
+  function updateQuestion(i: number, patch: Partial<QuizQuestionDraft>) {
+    onQuestionsChange(questions.map((q, idx) => (idx === i ? { ...q, ...patch } : q)));
+  }
+  function removeQuestion(i: number) {
+    onQuestionsChange(questions.filter((_, idx) => idx !== i));
+  }
+
+  return (
+    <div className="flex flex-col gap-3 rounded-xl border border-border p-3">
+      <div className="flex items-center gap-2">
+        <HelpCircle className="h-4 w-4 text-primary" aria-hidden="true" />
+        <p className="text-sm font-bold text-text">End-of-mission quiz (optional)</p>
+      </div>
+
+      {questions.length > 0 && (
+        <label className="flex items-center gap-2 text-sm text-text-muted">
+          Stars per correct answer
+          <input
+            type="number"
+            min={1}
+            value={starReward}
+            onChange={(e) => onStarRewardChange(Math.max(1, Number(e.target.value) || 1))}
+            className="min-h-9 w-20 rounded-lg border border-border bg-surface px-2 text-text"
+          />
+        </label>
+      )}
+
+      {questions.map((q, i) => (
+        <div key={i} className="flex flex-col gap-2 rounded-lg bg-surface-alt p-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={q.question}
+              onChange={(e) => updateQuestion(i, { question: e.target.value })}
+              placeholder={`Question ${i + 1} (e.g. "Did the boy say thank you?")`}
+              aria-label={`Quiz question ${i + 1}`}
+              className="min-h-9 flex-1 rounded-lg border border-border bg-surface px-2 text-sm text-text"
+            />
+            <button
+              type="button"
+              onClick={() => removeQuestion(i)}
+              aria-label={`Remove question ${i + 1}`}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-alert"
+            >
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+          <SegmentedControl
+            ariaLabel={`Correct answer for question ${i + 1}`}
+            options={[
+              { value: 'yes', label: 'Yes' },
+              { value: 'no', label: 'No' },
+            ]}
+            value={q.correctAnswer}
+            onChange={(v) => updateQuestion(i, { correctAnswer: v as 'yes' | 'no' })}
+          />
+        </div>
+      ))}
+
+      <Button variant="ghost" onClick={addQuestion} icon={<Plus className="h-4 w-4" aria-hidden="true" />}>
+        Add question
+      </Button>
+    </div>
+  );
+}
 
 function AddVideoForm({ onAdded }: { onAdded: () => void }) {
   const { token } = useAuth();
@@ -23,6 +107,8 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
   const [saving, setSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestionDraft[]>([]);
+  const [quizStarReward, setQuizStarReward] = useState(2);
 
   function reset() {
     setTitle('');
@@ -32,6 +118,8 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
     setSource('link');
     setOpen(false);
     setUploadProgress(null);
+    setQuizQuestions([]);
+    setQuizStarReward(2);
   }
 
   async function handleAdd() {
@@ -44,9 +132,15 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
         formData.append('title', title);
         formData.append('description', description);
         formData.append('file', file);
+        formData.append('quizQuestions', JSON.stringify(quizQuestions));
+        formData.append('quizStarReward', String(quizStarReward));
         await apiUpload('/videos/upload', { formData, token, onProgress: setUploadProgress });
       } else {
-        await apiFetch('/videos', { method: 'POST', token, body: { title, description, url } });
+        await apiFetch('/videos', {
+          method: 'POST',
+          token,
+          body: { title, description, url, quizQuestions, quizStarReward },
+        });
       }
       reset();
       onAdded();
@@ -151,6 +245,14 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
           )}
         </div>
       )}
+
+      <QuizEditor
+        questions={quizQuestions}
+        onQuestionsChange={setQuizQuestions}
+        starReward={quizStarReward}
+        onStarRewardChange={setQuizStarReward}
+      />
+
       {error && (
         <p role="alert" className="text-alert">
           {error}
@@ -164,6 +266,99 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
           {saving && source === 'upload' ? 'Uploading…' : 'Save'}
         </Button>
       </div>
+    </Card>
+  );
+}
+
+function VideoRow({ video, token, onDelete, onSaved }: {
+  video: Video;
+  token: string | null;
+  onDelete: (id: string) => void;
+  onSaved: (video: Video) => void;
+}) {
+  const [editingQuiz, setEditingQuiz] = useState(false);
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestionDraft[]>(video.quizQuestions ?? []);
+  const [quizStarReward, setQuizStarReward] = useState(video.quizStarReward ?? 2);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const questionCount = video.quizQuestions?.length ?? 0;
+
+  function openEditor() {
+    setQuizQuestions(video.quizQuestions ?? []);
+    setQuizStarReward(video.quizStarReward ?? 2);
+    setError('');
+    setEditingQuiz(true);
+  }
+
+  async function handleSaveQuiz() {
+    setSaving(true);
+    setError('');
+    try {
+      const data = await apiFetch<{ video: Video }>(`/videos/${video.id}`, {
+        method: 'PATCH',
+        token,
+        body: { quizQuestions, quizStarReward },
+      });
+      onSaved(data.video);
+      setEditingQuiz(false);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Could not save the quiz.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Card className="flex flex-col gap-3">
+      <div className="flex items-center gap-4">
+        <div className="flex-1">
+          <p className="font-bold text-text">{video.title}</p>
+          {video.description && <p className="text-sm text-text-muted">{video.description}</p>}
+          <p className="truncate text-sm text-primary">{video.url}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => onDelete(video.id)}
+          aria-label="Delete video"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-alert"
+        >
+          <Trash2 className="h-5 w-5" aria-hidden="true" />
+        </button>
+      </div>
+
+      {!editingQuiz ? (
+        <button
+          type="button"
+          onClick={openEditor}
+          className="flex min-h-9 items-center gap-1.5 self-start text-sm font-semibold text-primary"
+        >
+          <HelpCircle className="h-4 w-4" aria-hidden="true" />
+          {questionCount > 0 ? `Edit quiz (${questionCount} question${questionCount === 1 ? '' : 's'})` : 'Add end-of-mission quiz'}
+        </button>
+      ) : (
+        <div className="flex flex-col gap-3">
+          <QuizEditor
+            questions={quizQuestions}
+            onQuestionsChange={setQuizQuestions}
+            starReward={quizStarReward}
+            onStarRewardChange={setQuizStarReward}
+          />
+          {error && (
+            <p role="alert" className="text-alert">
+              {error}
+            </p>
+          )}
+          <div className="flex gap-3">
+            <Button variant="ghost" className="flex-1" onClick={() => setEditingQuiz(false)}>
+              Cancel
+            </Button>
+            <Button className="flex-1" onClick={handleSaveQuiz} disabled={saving}>
+              {saving ? 'Saving…' : 'Save quiz'}
+            </Button>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
@@ -231,21 +426,13 @@ export function AdminDashboard() {
       ) : (
         <div className="flex flex-col gap-3">
           {videos.map((video) => (
-            <Card key={video.id} className="flex items-center gap-4">
-              <div className="flex-1">
-                <p className="font-bold text-text">{video.title}</p>
-                {video.description && <p className="text-sm text-text-muted">{video.description}</p>}
-                <p className="truncate text-sm text-primary">{video.url}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleDelete(video.id)}
-                aria-label="Delete video"
-                className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-alert"
-              >
-                <Trash2 className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </Card>
+            <VideoRow
+              key={video.id}
+              video={video}
+              token={token}
+              onDelete={handleDelete}
+              onSaved={(updated) => setVideos((vs) => vs.map((v) => (v.id === updated.id ? updated : v)))}
+            />
           ))}
         </div>
       )}

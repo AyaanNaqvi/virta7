@@ -168,6 +168,15 @@ export interface Translations {
   missions_openVideo: string;
   missions_finishedWatching: string;
   missions_moreMissions: string;
+  missions_quizIntro: string;
+  missions_quizQuestionProgress: string;
+  missions_quizYes: string;
+  missions_quizNo: string;
+  missions_quizCorrect: string;
+  missions_quizStarsEarned: string;
+  missions_quizTryAgain: string;
+  missions_quizComplete: string;
+  missions_quizContinue: string;
 }
 
 const enUS: Translations = {
@@ -338,6 +347,15 @@ const enUS: Translations = {
   missions_openVideo: 'Open video',
   missions_finishedWatching: "I've finished watching",
   missions_moreMissions: 'More missions you can complete',
+  missions_quizIntro: 'Quick quiz time!',
+  missions_quizQuestionProgress: 'Question {current} of {total}',
+  missions_quizYes: 'Yes',
+  missions_quizNo: 'No',
+  missions_quizCorrect: 'Correct!',
+  missions_quizStarsEarned: '+{count} stars!',
+  missions_quizTryAgain: 'Not quite — try again!',
+  missions_quizComplete: 'Quiz complete!',
+  missions_quizContinue: 'Continue',
 };
 
 const enGB: Translations = {
@@ -512,6 +530,15 @@ const ptPT: Translations = {
   missions_openVideo: 'Abrir vídeo',
   missions_finishedWatching: 'Já acabei de ver',
   missions_moreMissions: 'Mais missões que podes completar',
+  missions_quizIntro: 'Hora do questionário rápido!',
+  missions_quizQuestionProgress: 'Pergunta {current} de {total}',
+  missions_quizYes: 'Sim',
+  missions_quizNo: 'Não',
+  missions_quizCorrect: 'Correto!',
+  missions_quizStarsEarned: '+{count} estrelas!',
+  missions_quizTryAgain: 'Quase — tenta outra vez!',
+  missions_quizComplete: 'Questionário concluído!',
+  missions_quizContinue: 'Continuar',
 };
 
 const ptBR: Translations = {
@@ -746,6 +773,15 @@ const es: Translations = {
   missions_openVideo: 'Abrir video',
   missions_finishedWatching: 'Ya terminé de verlo',
   missions_moreMissions: 'Más misiones que puedes completar',
+  missions_quizIntro: '¡Hora del cuestionario rápido!',
+  missions_quizQuestionProgress: 'Pregunta {current} de {total}',
+  missions_quizYes: 'Sí',
+  missions_quizNo: 'No',
+  missions_quizCorrect: '¡Correcto!',
+  missions_quizStarsEarned: '¡+{count} estrellas!',
+  missions_quizTryAgain: 'Casi — ¡inténtalo de nuevo!',
+  missions_quizComplete: '¡Cuestionario completado!',
+  missions_quizContinue: 'Continuar',
 };
 
 const no: Translations = {
@@ -916,6 +952,15 @@ const no: Translations = {
   missions_openVideo: 'Åpne video',
   missions_finishedWatching: 'Jeg er ferdig med å se',
   missions_moreMissions: 'Flere oppdrag du kan fullføre',
+  missions_quizIntro: 'Tid for en rask quiz!',
+  missions_quizQuestionProgress: 'Spørsmål {current} av {total}',
+  missions_quizYes: 'Ja',
+  missions_quizNo: 'Nei',
+  missions_quizCorrect: 'Riktig!',
+  missions_quizStarsEarned: '+{count} stjerner!',
+  missions_quizTryAgain: 'Ikke helt — prøv igjen!',
+  missions_quizComplete: 'Quiz fullført!',
+  missions_quizContinue: 'Fortsett',
 };
 
 const fr: Translations = {
@@ -1086,6 +1131,15 @@ const fr: Translations = {
   missions_openVideo: 'Ouvrir la vidéo',
   missions_finishedWatching: "J'ai fini de regarder",
   missions_moreMissions: 'Plus de missions que tu peux accomplir',
+  missions_quizIntro: "C'est l'heure du petit quiz !",
+  missions_quizQuestionProgress: 'Question {current} sur {total}',
+  missions_quizYes: 'Oui',
+  missions_quizNo: 'Non',
+  missions_quizCorrect: 'Correct !',
+  missions_quizStarsEarned: '+{count} étoiles !',
+  missions_quizTryAgain: 'Pas tout à fait — réessaie !',
+  missions_quizComplete: 'Quiz terminé !',
+  missions_quizContinue: 'Continuer',
 };
 
 const it: Translations = {
@@ -1256,6 +1310,15 @@ const it: Translations = {
   missions_openVideo: 'Apri video',
   missions_finishedWatching: 'Ho finito di guardare',
   missions_moreMissions: 'Altre missioni che puoi completare',
+  missions_quizIntro: 'È ora del quiz veloce!',
+  missions_quizQuestionProgress: 'Domanda {current} di {total}',
+  missions_quizYes: 'Sì',
+  missions_quizNo: 'No',
+  missions_quizCorrect: 'Corretto!',
+  missions_quizStarsEarned: '+{count} stelle!',
+  missions_quizTryAgain: 'Non proprio — riprova!',
+  missions_quizComplete: 'Quiz completato!',
+  missions_quizContinue: 'Continua',
 };
 
 const hu: Translations = {
@@ -1426,6 +1489,15 @@ const hu: Translations = {
   missions_openVideo: 'Videó megnyitása',
   missions_finishedWatching: 'Befejeztem a nézést',
   missions_moreMissions: 'További küldetések, amiket elvégezhetsz',
+  missions_quizIntro: 'Gyors kvíz ideje!',
+  missions_quizQuestionProgress: '{current}. kérdés a {total}-ból',
+  missions_quizYes: 'Igen',
+  missions_quizNo: 'Nem',
+  missions_quizCorrect: 'Helyes!',
+  missions_quizStarsEarned: '+{count} csillag!',
+  missions_quizTryAgain: 'Majdnem — próbáld újra!',
+  missions_quizComplete: 'Kvíz kész!',
+  missions_quizContinue: 'Folytatás',
 };
 
 export const TRANSLATIONS: Record<LocaleCode, Translations> = {

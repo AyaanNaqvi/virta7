@@ -4,6 +4,7 @@ import { Sparkles } from 'lucide-react';
 import { PageContainer } from '../components/layout/PageContainer';
 import { Card } from '../components/ui/Card';
 import { VideoCard } from '../components/video/VideoCard';
+import { MissionQuiz } from '../components/video/MissionQuiz';
 import { apiFetch } from '../lib/api';
 import { loadJSON, saveJSON, STORAGE_KEYS } from '../lib/storage';
 import { isMissionWatchedToday, setMissionWatchedToday } from '../lib/missionWatched';
@@ -85,10 +86,29 @@ export function Missions() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const [watched, setWatched] = useState(() => (user ? isMissionWatchedToday(user.id) : false));
+  const [quizVideo, setQuizVideo] = useState<Video | null>(null);
+  const [quizIsMissionOfDay, setQuizIsMissionOfDay] = useState(false);
 
   function handleMissionComplete() {
     if (user) setMissionWatchedToday(user.id);
     setWatched(true);
+  }
+
+  // Every mission that has quiz questions shows them right after the video
+  // ends; the mission-of-day's "watched today" tracking only fires once the
+  // quiz (if any) is done, not the instant the video itself finishes.
+  function handleVideoFinished(video: Video, isMissionOfDay: boolean) {
+    if (video.quizQuestions && video.quizQuestions.length > 0) {
+      setQuizVideo(video);
+      setQuizIsMissionOfDay(isMissionOfDay);
+    } else if (isMissionOfDay) {
+      handleMissionComplete();
+    }
+  }
+
+  function handleQuizFinished() {
+    setQuizVideo(null);
+    if (quizIsMissionOfDay) handleMissionComplete();
   }
 
   useEffect(() => {
@@ -173,7 +193,7 @@ export function Missions() {
             <h2 className="text-lg font-bold text-text">{t('missions_missionOfDay')}</h2>
           </div>
           <div className="w-full max-w-sm">
-            <VideoCard video={missionOfDay} onComplete={handleMissionComplete} />
+            <VideoCard video={missionOfDay} onComplete={() => handleVideoFinished(missionOfDay, true)} />
           </div>
         </div>
       )}
@@ -193,7 +213,7 @@ export function Missions() {
               <h2 className="mb-3 text-lg font-bold text-text">{t('missions_moreMissions')}</h2>
               <div className="flex flex-col gap-3">
                 {rest.map((video) => (
-                  <VideoCard key={video.id} video={video} />
+                  <VideoCard key={video.id} video={video} onComplete={() => handleVideoFinished(video, false)} />
                 ))}
               </div>
             </>
@@ -204,6 +224,8 @@ export function Missions() {
       <AnimatePresence>
         {showPopup && missionOfDay && <MissionOfDayPopup video={missionOfDay} onDismiss={dismissPopup} />}
       </AnimatePresence>
+
+      {quizVideo && <MissionQuiz video={quizVideo} onFinished={handleQuizFinished} />}
     </PageContainer>
   );
 }

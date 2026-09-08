@@ -74,10 +74,18 @@ export interface BackendDiaryEntry {
   text: string;
 }
 
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  correctAnswer: 'yes' | 'no';
+}
+
 export interface Video {
   id: string;
   title: string;
   description: string;
   url: string;
+  quizQuestions?: QuizQuestion[];
+  quizStarReward?: number;
   createdAt: string;
 }
