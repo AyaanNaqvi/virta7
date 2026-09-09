@@ -13,7 +13,7 @@ export function MissionQuiz({ video, onFinished }: { video: Video; onFinished: (
   const { t } = useLanguage();
   const { answerQuizQuestion } = useChildData();
   const questions = video.quizQuestions ?? [];
-  const starReward = video.quizStarReward ?? 2;
+  const starReward = video.quizStarReward ?? 1;
 
   const [index, setIndex] = useState(0);
   const [feedback, setFeedback] = useState<Feedback>(null);

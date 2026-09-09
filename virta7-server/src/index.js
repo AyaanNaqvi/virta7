@@ -623,7 +623,7 @@ app.post('/api/videos', requireAuth, requireRole('admin'), (req, res) => {
     description: description || '',
     url,
     quizQuestions: normalizeQuizQuestions(quizQuestions),
-    quizStarReward: Math.max(1, Number(quizStarReward) || 2),
+    quizStarReward: Math.max(1, Number(quizStarReward) || 1),
     createdAt: new Date().toISOString(),
   };
   db.videos.push(video);
@@ -648,7 +648,7 @@ app.post('/api/videos/upload', requireAuth, requireRole('admin'), upload.single(
     description: description || '',
     url: `/uploads/${req.file.filename}`,
     quizQuestions,
-    quizStarReward: Math.max(1, Number(quizStarReward) || 2),
+    quizStarReward: Math.max(1, Number(quizStarReward) || 1),
     createdAt: new Date().toISOString(),
   };
   db.videos.push(video);
@@ -664,7 +664,7 @@ app.patch('/api/videos/:id', requireAuth, requireRole('admin'), (req, res) => {
   if (description !== undefined) video.description = description;
   if (url !== undefined) video.url = url;
   if (quizQuestions !== undefined) video.quizQuestions = normalizeQuizQuestions(quizQuestions);
-  if (quizStarReward !== undefined) video.quizStarReward = Math.max(1, Number(quizStarReward) || 2);
+  if (quizStarReward !== undefined) video.quizStarReward = Math.max(1, Number(quizStarReward) || 1);
   db.persist();
   res.json({ video });
 });
@@ -684,7 +684,7 @@ app.post('/api/videos/:id/quiz-answer', requireAuth, requireRole('child'), (req,
   const alreadyRewarded = child.answeredQuizQuestions.includes(dedupeKey);
   if (correct && !alreadyRewarded) {
     child.answeredQuizQuestions.push(dedupeKey);
-    awardStars(child, video.quizStarReward ?? 2, `Quiz: ${question.question}`);
+    awardStars(child, video.quizStarReward ?? 1, `Quiz: ${question.question}`);
   }
   db.persist();
   res.json({ correct, alreadyRewarded, starsTotal: child.starsTotal });

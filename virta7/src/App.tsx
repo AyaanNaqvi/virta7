@@ -1,5 +1,8 @@
 import type { ReactNode } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { AccessibilityProvider } from './contexts/AccessibilityContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ChildDataProvider } from './contexts/ChildDataContext';
@@ -35,6 +38,27 @@ function RequireRole({ role, children }: { role: AuthRole; children: ReactNode }
   return children;
 }
 
+// The native Android WebView stays alive in the background, so reopening the
+// app from the launcher/recents doesn't restart it — it just resumes on
+// whatever screen was showing when it was last backgrounded. Reset to the
+// role's main screen on every resume so the app always opens fresh instead.
+function useResetToHomeOnResume() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const listenerPromise = CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) {
+        navigate(user ? roleHome(user.role) : '/login', { replace: true });
+      }
+    });
+    return () => {
+      listenerPromise.then((listener) => listener.remove());
+    };
+  }, [navigate, user]);
+}
+
 function ChildApp() {
   return (
     <RequireRole role="child">
@@ -46,6 +70,8 @@ function ChildApp() {
 }
 
 function AppRoutes() {
+  useResetToHomeOnResume();
+
   return (
     <Routes>
       <Route path="/" element={<RootRedirect />} />

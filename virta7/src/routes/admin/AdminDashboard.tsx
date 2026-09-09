@@ -5,6 +5,7 @@ import { PageContainer } from '../../components/layout/PageContainer';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
+import { VideoCard } from '../../components/video/VideoCard';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiFetch, apiUpload, ApiError } from '../../lib/api';
 import type { Video } from '../../types/backend';
@@ -108,7 +109,7 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestionDraft[]>([]);
-  const [quizStarReward, setQuizStarReward] = useState(2);
+  const [quizStarReward, setQuizStarReward] = useState(1);
 
   function reset() {
     setTitle('');
@@ -119,7 +120,7 @@ function AddVideoForm({ onAdded }: { onAdded: () => void }) {
     setOpen(false);
     setUploadProgress(null);
     setQuizQuestions([]);
-    setQuizStarReward(2);
+    setQuizStarReward(1);
   }
 
   async function handleAdd() {
@@ -278,7 +279,7 @@ function VideoRow({ video, token, onDelete, onSaved }: {
 }) {
   const [editingQuiz, setEditingQuiz] = useState(false);
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestionDraft[]>(video.quizQuestions ?? []);
-  const [quizStarReward, setQuizStarReward] = useState(video.quizStarReward ?? 2);
+  const [quizStarReward, setQuizStarReward] = useState(video.quizStarReward ?? 1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -286,7 +287,7 @@ function VideoRow({ video, token, onDelete, onSaved }: {
 
   function openEditor() {
     setQuizQuestions(video.quizQuestions ?? []);
-    setQuizStarReward(video.quizStarReward ?? 2);
+    setQuizStarReward(video.quizStarReward ?? 1);
     setError('');
     setEditingQuiz(true);
   }
@@ -311,17 +312,15 @@ function VideoRow({ video, token, onDelete, onSaved }: {
 
   return (
     <Card className="flex flex-col gap-3">
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-2">
         <div className="flex-1">
-          <p className="font-bold text-text">{video.title}</p>
-          {video.description && <p className="text-sm text-text-muted">{video.description}</p>}
-          <p className="truncate text-sm text-primary">{video.url}</p>
+          <VideoCard video={video} />
         </div>
         <button
           type="button"
           onClick={() => onDelete(video.id)}
           aria-label="Delete video"
-          className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-alert"
+          className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl text-alert"
         >
           <Trash2 className="h-5 w-5" aria-hidden="true" />
         </button>
