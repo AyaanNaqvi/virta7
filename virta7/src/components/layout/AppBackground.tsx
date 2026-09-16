@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import bgBlue from '../../assets/bg-blue.mp4';
 import bgRed from '../../assets/bg-red.mp4';
@@ -33,21 +34,37 @@ const ALL_BACKGROUNDS = [bgBlue, bgRed, bgPurple, bgOrange, bgGreen];
 export function AppBackground() {
   const { pathname } = useLocation();
   const activeSrc = backgroundFor(pathname);
+  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+
+  // Only the visible video is ever actually playing/decoding — the other
+  // four sit paused (but still mounted, so switching to them is instant and
+  // never re-triggers the native "not started yet" flash). Android WebView
+  // has a low limit on concurrent *actively decoding* video surfaces; having
+  // all five autoplay at once exceeded it and corrupted the rendering.
+  useEffect(() => {
+    for (const src of ALL_BACKGROUNDS) {
+      const el = videoRefs.current[src];
+      if (!el) continue;
+      if (src === activeSrc) {
+        el.play().catch(() => {});
+      } else {
+        el.pause();
+      }
+    }
+  }, [activeSrc]);
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden bg-black">
-      {/* All five videos stay mounted and playing for the life of the app —
-          swapping the `src` of a single <video> (or remounting via key) makes
-          Android's WebView briefly flash its native play-button overlay while
-          the new source buffers. Crossfading opacity between already-playing
-          elements avoids that remount entirely. */}
       {ALL_BACKGROUNDS.map((src) => (
         <video
           key={src}
-          autoPlay
+          ref={(el) => {
+            videoRefs.current[src] = el;
+          }}
           muted
           loop
           playsInline
+          preload="auto"
           src={src}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
             src === activeSrc ? 'opacity-100' : 'opacity-0'
