@@ -28,21 +28,32 @@ function backgroundFor(pathname: string): string {
   return ROUTE_BACKGROUND[pathname] ?? bgOrange;
 }
 
+const ALL_BACKGROUNDS = [bgBlue, bgRed, bgPurple, bgOrange, bgGreen];
+
 export function AppBackground() {
   const { pathname } = useLocation();
-  const src = backgroundFor(pathname);
+  const activeSrc = backgroundFor(pathname);
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden bg-black">
-      <video
-        key={src}
-        autoPlay
-        muted
-        loop
-        playsInline
-        src={src}
-        className="h-full w-full object-cover"
-      />
+      {/* All five videos stay mounted and playing for the life of the app —
+          swapping the `src` of a single <video> (or remounting via key) makes
+          Android's WebView briefly flash its native play-button overlay while
+          the new source buffers. Crossfading opacity between already-playing
+          elements avoids that remount entirely. */}
+      {ALL_BACKGROUNDS.map((src) => (
+        <video
+          key={src}
+          autoPlay
+          muted
+          loop
+          playsInline
+          src={src}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+            src === activeSrc ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+      ))}
     </div>
   );
 }
