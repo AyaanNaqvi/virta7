@@ -16,7 +16,22 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        debug {
+            // Debug builds were only being signed with the v2 scheme. Some
+            // devices/installers choke on a v2-only APK with a generic
+            // "package appears to be invalid" error even though the file
+            // itself is fine - adding the older v1 (JAR) signature alongside
+            // it broadens install compatibility with no downside on modern
+            // devices, which just ignore it and use v2 anyway.
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

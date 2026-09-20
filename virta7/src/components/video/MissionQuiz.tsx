@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Check, X } from 'lucide-react';
 import { useReduceMotion } from '../../contexts/AccessibilityContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useChildData } from '../../contexts/ChildDataContext';
+import { speak, stopSpeaking, isVoiceMuted } from '../../lib/speech';
 import type { Video } from '../../types/backend';
 
 type Feedback = 'correct' | 'incorrect' | null;
 
 export function MissionQuiz({ video, onFinished }: { video: Video; onFinished: () => void }) {
   const reduceMotion = useReduceMotion();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const { answerQuizQuestion } = useChildData();
   const questions = video.quizQuestions ?? [];
   const starReward = video.quizStarReward ?? 1;
@@ -23,6 +24,27 @@ export function MissionQuiz({ video, onFinished }: { video: Video; onFinished: (
   const question = questions[index];
   const isLast = index === questions.length - 1;
   const done = index >= questions.length;
+
+  // Reads whatever's currently on screen aloud (question, feedback, or the
+  // final tally) so the child doesn't have to be able to read the text —
+  // same voice/mute behavior as the rest of the app.
+  useEffect(() => {
+    if (isVoiceMuted()) return;
+    if (done) {
+      speak(`${t('missions_quizComplete')} ${t('missions_quizStarsEarned', { count: starsEarned })}`, locale, 'virtinho');
+    } else if (feedback === 'correct') {
+      speak(`${t('missions_quizCorrect')} ${t('missions_quizStarsEarned', { count: starReward })}`, locale, 'virtinho');
+    } else if (feedback === 'incorrect') {
+      speak(t('missions_quizTryAgain'), locale, 'virtinho');
+    } else if (question) {
+      speak(question.question, locale, 'virtinho');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done, feedback, question, locale]);
+
+  useEffect(() => {
+    return () => stopSpeaking();
+  }, []);
 
   async function handleAnswer(answer: 'yes' | 'no') {
     if (submitting || !question) return;

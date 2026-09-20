@@ -10,7 +10,7 @@ import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted } from '../lib/speech'
 import { getTodayCompanion, setTodayCompanion, type Companion } from '../lib/companion';
 import virtinho from '../assets/virtinho.jpg';
 import virtinha from '../assets/virtinha.jpg';
-import virtagoSplash from '../assets/virtago-splash.jpg';
+import virtagoIntro from '../assets/virtago-intro.mp4';
 
 type Speaker = 'virtinho' | 'virtinha';
 type Stage = 'splash' | 'pickCompanion' | 'dialogue' | 'choose' | 'confirm';
@@ -75,6 +75,7 @@ export function Greeting() {
   const [stage, setStage] = useState<Stage>('splash');
   const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
   const markedOnboarded = useRef(false);
+  const introVideoRef = useRef<HTMLVideoElement>(null);
 
   const step = steps[Math.min(stepIndex, steps.length - 1)];
 
@@ -83,6 +84,21 @@ export function Greeting() {
     speak(step.text, locale, step.speaker);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, stage, muted, locale]);
+
+  // The intro video plays with sound by default (it follows right after the
+  // login tap, so it still counts as a user-initiated action on most
+  // platforms). If the browser blocks audible autoplay anyway, fall back to
+  // muted autoplay rather than not playing at all.
+  useEffect(() => {
+    if (stage !== 'splash') return;
+    const video = introVideoRef.current;
+    if (!video) return;
+    video.muted = muted;
+    video.play().catch(() => {
+      video.muted = true;
+      video.play().catch(() => {});
+    });
+  }, [stage, muted]);
 
   useEffect(() => {
     return () => stopSpeaking();
@@ -181,14 +197,15 @@ export function Greeting() {
           aria-label={t('greeting_tapToContinue')}
           className="relative z-10 flex flex-1 flex-col items-center justify-center gap-6 px-4"
         >
-          <motion.img
+          <motion.video
+            ref={introVideoRef}
             initial={reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
-            src={virtagoSplash}
-            alt="Virta Go"
+            src={virtagoIntro}
+            playsInline
+            onEnded={dismissSplash}
             className="w-full max-w-xs rounded-3xl object-contain shadow-lg"
-            draggable={false}
           />
           <motion.p
             initial={reduceMotion ? { opacity: 0.6 } : { opacity: 0.3 }}
