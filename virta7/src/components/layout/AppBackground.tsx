@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useBackgroundVideoControl } from '../../contexts/BackgroundVideoContext';
 import bgBlue from '../../assets/bg-blue.mp4';
 import bgRed from '../../assets/bg-red.mp4';
 import bgPurple from '../../assets/bg-purple.mp4';
@@ -35,23 +36,27 @@ export function AppBackground() {
   const { pathname } = useLocation();
   const activeSrc = backgroundFor(pathname);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+  const { suppressed } = useBackgroundVideoControl();
 
   // Only the visible video is ever actually playing/decoding — the other
   // four sit paused (but still mounted, so switching to them is instant and
   // never re-triggers the native "not started yet" flash). Android WebView
   // has a low limit on concurrent *actively decoding* video surfaces; having
   // all five autoplay at once exceeded it and corrupted the rendering.
+  // `suppressed` pauses even the active one too, for when some other video
+  // on screen (e.g. the greeting intro) needs that decoder budget instead —
+  // otherwise the two starting at once at cold app launch hits the same limit.
   useEffect(() => {
     for (const src of ALL_BACKGROUNDS) {
       const el = videoRefs.current[src];
       if (!el) continue;
-      if (src === activeSrc) {
+      if (src === activeSrc && !suppressed) {
         el.play().catch(() => {});
       } else {
         el.pause();
       }
     }
-  }, [activeSrc]);
+  }, [activeSrc, suppressed]);
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden bg-black">

@@ -5,6 +5,7 @@ import { CalendarDays, Target, ListChecks, BookOpen, Volume2, VolumeX } from 'lu
 import { useAuth } from '../contexts/AuthContext';
 import { useReduceMotion } from '../contexts/AccessibilityContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useBackgroundVideoControl } from '../contexts/BackgroundVideoContext';
 import { apiFetch } from '../lib/api';
 import { speak, stopSpeaking, isVoiceMuted, setVoiceMuted } from '../lib/speech';
 import { getTodayCompanion, setTodayCompanion, type Companion } from '../lib/companion';
@@ -76,8 +77,21 @@ export function Greeting() {
   const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
   const markedOnboarded = useRef(false);
   const introVideoRef = useRef<HTMLVideoElement>(null);
+  const { suppressBackgroundVideo, releaseBackgroundVideo } = useBackgroundVideoControl();
 
   const step = steps[Math.min(stepIndex, steps.length - 1)];
+
+  // The intro video autoplaying at the exact same moment as the background
+  // video (both starting cold, right at app launch) was hitting the same
+  // Android WebView concurrent-decoder limit that corrupted the background
+  // video transitions earlier — pause the background video for as long as
+  // the splash is up so only the intro video is actually decoding.
+  useEffect(() => {
+    if (stage !== 'splash') return;
+    suppressBackgroundVideo();
+    return () => releaseBackgroundVideo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage]);
 
   useEffect(() => {
     if (muted || stage !== 'dialogue') return;
@@ -205,7 +219,7 @@ export function Greeting() {
             src={virtagoIntro}
             playsInline
             onEnded={dismissSplash}
-            className="w-full max-w-xs rounded-3xl object-contain shadow-lg"
+            className="w-full max-w-xs rounded-3xl bg-black object-contain shadow-lg"
           />
           <motion.p
             initial={reduceMotion ? { opacity: 0.6 } : { opacity: 0.3 }}

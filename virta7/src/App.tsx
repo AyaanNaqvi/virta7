@@ -5,6 +5,7 @@ import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { AccessibilityProvider } from './contexts/AccessibilityContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { BackgroundVideoProvider } from './contexts/BackgroundVideoContext';
 import { ChildDataProvider } from './contexts/ChildDataContext';
 import { AuthProvider, useAuth, roleHome } from './contexts/AuthContext';
 import type { AuthRole } from './types/backend';
@@ -134,8 +135,10 @@ function App() {
     <AuthProvider>
       <AccessibilityProvider>
         <LanguageProvider>
-          <AppBackground />
-          <AppRoutes />
+          <BackgroundVideoProvider>
+            <AppBackground />
+            <AppRoutes />
+          </BackgroundVideoProvider>
         </LanguageProvider>
       </AccessibilityProvider>
     </AuthProvider>
