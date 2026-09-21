@@ -22,6 +22,12 @@ export function VideoCard({ video, onComplete }: { video: Video; onComplete?: ()
   function fireOnce() {
     if (firedRef.current) return;
     firedRef.current = true;
+    // A video finishing while the native fullscreen video player is still
+    // open leaves the quiz modal rendered but hidden behind it — the browser
+    // doesn't exit fullscreen on its own when playback ends.
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
     onComplete?.();
   }
 
@@ -77,7 +83,7 @@ export function VideoCard({ video, onComplete }: { video: Video; onComplete?: ()
           )}
           {kind === 'file' && (
             // eslint-disable-next-line jsx-a11y/media-has-caption
-            <video src={playableUrl} controls className="aspect-video w-full" onEnded={fireOnce} />
+            <video src={playableUrl} controls className="aspect-video w-full bg-black" onEnded={fireOnce} />
           )}
           {kind === 'link' && (
             <div className="flex flex-col items-center gap-2 p-4">

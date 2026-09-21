@@ -88,6 +88,25 @@ export function Missions() {
   const [watched, setWatched] = useState(() => (user ? isMissionWatchedToday(user.id) : false));
   const [quizVideo, setQuizVideo] = useState<Video | null>(null);
   const [quizIsMissionOfDay, setQuizIsMissionOfDay] = useState(false);
+  // Both the mission-of-day pick and "watched today" are date-derived, but
+  // neither useState/useMemo re-evaluates on its own when the calendar day
+  // rolls over under an app that's stayed open/mounted since - only when
+  // their own inputs (videos, user) change. Polling for the day to change
+  // and feeding that into both keeps them correct without needing a fresh
+  // mount or a videos refetch to happen to coincide with midnight.
+  const [today, setToday] = useState(() => todayKey());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const current = todayKey();
+      setToday((prev) => (prev === current ? prev : current));
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    setWatched(user ? isMissionWatchedToday(user.id) : false);
+  }, [today, user]);
 
   function handleMissionComplete() {
     if (user) setMissionWatchedToday(user.id);
@@ -118,7 +137,7 @@ export function Missions() {
       .finally(() => setLoading(false));
   }, []);
 
-  const missionOfDay = useMemo(() => pickMissionOfDay(videos), [videos]);
+  const missionOfDay = useMemo(() => pickMissionOfDay(videos), [videos, today]);
 
   useEffect(() => {
     if (!missionOfDay || !user) return;
