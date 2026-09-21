@@ -77,6 +77,11 @@ export function Greeting() {
   const [muted, setMuted] = useState<boolean>(() => isVoiceMuted());
   const markedOnboarded = useRef(false);
   const introVideoRef = useRef<HTMLVideoElement>(null);
+  // A <video> that hasn't decoded a real frame yet renders Android WebView's
+  // native "not started" placeholder (a gray field with a play icon) instead
+  // of staying blank - stay hidden until its own `playing` event confirms
+  // real frames are actually being drawn, same fix as the background videos.
+  const [introReady, setIntroReady] = useState(false);
   const { suppressBackgroundVideo, releaseBackgroundVideo } = useBackgroundVideoControl();
 
   const step = steps[Math.min(stepIndex, steps.length - 1)];
@@ -214,10 +219,12 @@ export function Greeting() {
           <motion.video
             ref={introVideoRef}
             initial={reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
+            animate={introReady ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.92 }}
             transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
             src={virtagoIntro}
             playsInline
+            preload="auto"
+            onPlaying={() => setIntroReady(true)}
             onEnded={dismissSplash}
             className="w-full max-w-xs rounded-3xl bg-black object-contain shadow-lg"
           />

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useBackgroundVideoControl } from '../../contexts/BackgroundVideoContext';
 import bgBlue from '../../assets/bg-blue.mp4';
@@ -37,6 +37,14 @@ export function AppBackground() {
   const activeSrc = backgroundFor(pathname);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
   const { suppressed } = useBackgroundVideoControl();
+  // A freshly-loading <video> that hasn't decoded a real frame yet renders
+  // Android WebView's native "not started" placeholder (a gray field with a
+  // play icon) instead of just staying blank - showing that placeholder for
+  // even a moment reads as a glitch. Keeping the video hidden (revealing the
+  // plain black container behind it) until its own `playing` event fires
+  // sidesteps that placeholder entirely; once a src has started at least
+  // once, it stays flagged so cutting back to it later is instant.
+  const [startedPlaying, setStartedPlaying] = useState<Record<string, boolean>>({});
 
   // Only the visible video is ever actually playing/decoding — the other
   // four sit paused (but still mounted, so switching to them is instant and
@@ -71,8 +79,9 @@ export function AppBackground() {
           playsInline
           preload="auto"
           src={src}
+          onPlaying={() => setStartedPlaying((s) => (s[src] ? s : { ...s, [src]: true }))}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-            src === activeSrc ? 'opacity-100' : 'opacity-0'
+            src === activeSrc && startedPlaying[src] ? 'opacity-100' : 'opacity-0'
           }`}
         />
       ))}
