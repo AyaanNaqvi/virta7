@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Shuffle } from 'lucide-react';
 import { PageContainer } from '../components/layout/PageContainer';
 import { Card } from '../components/ui/Card';
 import { VideoCard } from '../components/video/VideoCard';
@@ -139,12 +139,17 @@ export function Missions() {
     setQuizVideo(null);
   }
 
-  function handleNext(nextVideo: Video) {
+  function jumpToVideo(video: Video) {
     setCompletedId(null);
-    setAutoOpenId(nextVideo.id);
+    setAutoOpenId(video.id);
     requestAnimationFrame(() => {
-      cardRefs.current[nextVideo.id]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      cardRefs.current[video.id]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
+  }
+
+  function handleRandom() {
+    if (videos.length === 0) return;
+    jumpToVideo(videos[Math.floor(Math.random() * videos.length)]);
   }
 
   useEffect(() => {
@@ -251,7 +256,7 @@ export function Missions() {
               hasNext={Boolean(getNextVideo(missionOfDay.id))}
               onNext={() => {
                 const next = getNextVideo(missionOfDay.id);
-                if (next) handleNext(next);
+                if (next) jumpToVideo(next);
               }}
             />
           </div>
@@ -284,7 +289,7 @@ export function Missions() {
                       hasNext={Boolean(getNextVideo(video.id))}
                       onNext={() => {
                         const next = getNextVideo(video.id);
-                        if (next) handleNext(next);
+                        if (next) jumpToVideo(next);
                       }}
                     />
                   </div>
@@ -294,6 +299,15 @@ export function Missions() {
           )}
         </>
       )}
+
+      <button
+        type="button"
+        onClick={handleRandom}
+        className="mt-6 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border-2 border-border bg-surface px-4 font-semibold text-text active:bg-surface-alt"
+      >
+        <Shuffle className="h-4 w-4 text-primary" aria-hidden="true" />
+        {t('missions_randomMission')}
+      </button>
 
       <AnimatePresence>
         {showPopup && missionOfDay && <MissionOfDayPopup video={missionOfDay} onDismiss={dismissPopup} />}

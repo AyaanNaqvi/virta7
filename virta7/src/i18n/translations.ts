@@ -178,6 +178,7 @@ export interface Translations {
   missions_quizComplete: string;
   missions_quizContinue: string;
   missions_nextMission: string;
+  missions_randomMission: string;
 }
 
 const enUS: Translations = {
@@ -358,6 +359,7 @@ const enUS: Translations = {
   missions_quizComplete: 'Quiz complete!',
   missions_quizContinue: 'Continue',
   missions_nextMission: 'Next mission',
+  missions_randomMission: 'Random mission',
 };
 
 const enGB: Translations = {
@@ -542,6 +544,7 @@ const ptPT: Translations = {
   missions_quizComplete: 'Questionário concluído!',
   missions_quizContinue: 'Continuar',
   missions_nextMission: 'Próxima missão',
+  missions_randomMission: 'Missão aleatória',
 };
 
 const ptBR: Translations = {
@@ -786,6 +789,7 @@ const es: Translations = {
   missions_quizComplete: '¡Cuestionario completado!',
   missions_quizContinue: 'Continuar',
   missions_nextMission: 'Siguiente misión',
+  missions_randomMission: 'Misión aleatoria',
 };
 
 const no: Translations = {
@@ -966,6 +970,7 @@ const no: Translations = {
   missions_quizComplete: 'Quiz fullført!',
   missions_quizContinue: 'Fortsett',
   missions_nextMission: 'Neste oppdrag',
+  missions_randomMission: 'Tilfeldig oppdrag',
 };
 
 const fr: Translations = {
@@ -1146,6 +1151,7 @@ const fr: Translations = {
   missions_quizComplete: 'Quiz terminé !',
   missions_quizContinue: 'Continuer',
   missions_nextMission: 'Mission suivante',
+  missions_randomMission: 'Mission aléatoire',
 };
 
 const it: Translations = {
@@ -1326,6 +1332,7 @@ const it: Translations = {
   missions_quizComplete: 'Quiz completato!',
   missions_quizContinue: 'Continua',
   missions_nextMission: 'Prossima missione',
+  missions_randomMission: 'Missione casuale',
 };
 
 const hu: Translations = {
@@ -1506,6 +1513,7 @@ const hu: Translations = {
   missions_quizComplete: 'Kvíz kész!',
   missions_quizContinue: 'Folytatás',
   missions_nextMission: 'Következő küldetés',
+  missions_randomMission: 'Véletlen küldetés',
 };
 
 export const TRANSLATIONS: Record<LocaleCode, Translations> = {
