@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { PlayCircle, ExternalLink, Check } from 'lucide-react';
+import { PlayCircle, ExternalLink, Check, ArrowRight } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { classifyVideoUrl, resolveVideoUrl } from '../../lib/video';
@@ -10,14 +10,44 @@ import type { Video } from '../../types/backend';
 // (0 = ended) — no need to load the full iframe_api script for this.
 const YOUTUBE_ENDED_STATE = 0;
 
-export function VideoCard({ video, onComplete }: { video: Video; onComplete?: () => void }) {
+interface VideoCardProps {
+  video: Video;
+  onComplete?: () => void;
+  // Opens (and starts) this video without the child needing to tap it -
+  // used by the "Next mission" flow to jump straight into the next video.
+  autoOpen?: boolean;
+  // Shows a "Next mission" button once this video is finished, wired up by
+  // the parent since it's the one that knows what "next" means.
+  completed?: boolean;
+  hasNext?: boolean;
+  onNext?: () => void;
+}
+
+export function VideoCard({ video, onComplete, autoOpen, completed, hasNext, onNext }: VideoCardProps) {
   const [open, setOpen] = useState(false);
   const [linkConfirmed, setLinkConfirmed] = useState(false);
   const { t } = useLanguage();
   const { kind, embedUrl } = classifyVideoUrl(video.url);
   const playableUrl = resolveVideoUrl(video.url);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const videoElRef = useRef<HTMLVideoElement>(null);
   const firedRef = useRef(false);
+
+  // Tapping anywhere on the card (or arriving here via "Next mission")
+  // should start playback immediately, not just reveal a paused player.
+  useEffect(() => {
+    if (autoOpen) setOpen(true);
+  }, [autoOpen]);
+
+  useEffect(() => {
+    if (!open || kind !== 'file') return;
+    const el = videoElRef.current;
+    if (!el) return;
+    el.play().catch(() => {
+      el.muted = true;
+      el.play().catch(() => {});
+    });
+  }, [open, kind]);
 
   function fireOnce() {
     if (firedRef.current) return;
@@ -67,7 +97,10 @@ export function VideoCard({ video, onComplete }: { video: Video; onComplete?: ()
             <div className="aspect-video w-full">
               <iframe
                 ref={iframeRef}
-                src={`${embedUrl}?enablejsapi=1`}
+                // mute=1 is required for iframed YouTube embeds to be allowed
+                // to autoplay at all; the player's own controls still let the
+                // child unmute it.
+                src={`${embedUrl}?enablejsapi=1&autoplay=1&mute=1`}
                 title={video.title}
                 className="h-full w-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -83,7 +116,13 @@ export function VideoCard({ video, onComplete }: { video: Video; onComplete?: ()
           )}
           {kind === 'file' && (
             // eslint-disable-next-line jsx-a11y/media-has-caption
-            <video src={playableUrl} controls className="aspect-video w-full bg-black" onEnded={fireOnce} />
+            <video
+              ref={videoElRef}
+              src={playableUrl}
+              controls
+              className="aspect-video w-full bg-black"
+              onEnded={fireOnce}
+            />
           )}
           {kind === 'link' && (
             <div className="flex flex-col items-center gap-2 p-4">
@@ -107,6 +146,19 @@ export function VideoCard({ video, onComplete }: { video: Video; onComplete?: ()
                   {t('missions_finishedWatching')}
                 </button>
               )}
+            </div>
+          )}
+
+          {completed && hasNext && (
+            <div className="p-3">
+              <button
+                type="button"
+                onClick={onNext}
+                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 font-semibold text-white"
+              >
+                {t('missions_nextMission')}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </button>
             </div>
           )}
         </div>

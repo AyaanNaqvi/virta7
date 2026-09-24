@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { PageContainer } from '../components/layout/PageContainer';
@@ -88,6 +88,13 @@ export function Missions() {
   const [watched, setWatched] = useState(() => (user ? isMissionWatchedToday(user.id) : false));
   const [quizVideo, setQuizVideo] = useState<Video | null>(null);
   const [quizIsMissionOfDay, setQuizIsMissionOfDay] = useState(false);
+  // The video that just finished (video + quiz, if any) - drives the "Next
+  // mission" button. Cleared once the child moves on to the next one.
+  const [completedId, setCompletedId] = useState<string | null>(null);
+  // Set when jumping to a video via "Next mission", so that card opens (and
+  // starts playing) itself instead of waiting for another tap.
+  const [autoOpenId, setAutoOpenId] = useState<string | null>(null);
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   // Both the mission-of-day pick and "watched today" are date-derived, but
   // neither useState/useMemo re-evaluates on its own when the calendar day
   // rolls over under an app that's stayed open/mounted since - only when
@@ -120,14 +127,24 @@ export function Missions() {
     if (video.quizQuestions && video.quizQuestions.length > 0) {
       setQuizVideo(video);
       setQuizIsMissionOfDay(isMissionOfDay);
-    } else if (isMissionOfDay) {
-      handleMissionComplete();
+    } else {
+      if (isMissionOfDay) handleMissionComplete();
+      setCompletedId(video.id);
     }
   }
 
   function handleQuizFinished() {
-    setQuizVideo(null);
     if (quizIsMissionOfDay) handleMissionComplete();
+    if (quizVideo) setCompletedId(quizVideo.id);
+    setQuizVideo(null);
+  }
+
+  function handleNext(nextVideo: Video) {
+    setCompletedId(null);
+    setAutoOpenId(nextVideo.id);
+    requestAnimationFrame(() => {
+      cardRefs.current[nextVideo.id]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   }
 
   useEffect(() => {
@@ -199,32 +216,58 @@ export function Missions() {
   }
 
   const rest = videos.filter((v) => v.id !== missionOfDay?.id);
+  // The order the child actually sees cards in: mission-of-day, then the
+  // rest of the list, used to figure out what "next" means.
+  const orderedList = missionOfDay ? [missionOfDay, ...rest] : rest;
+  function getNextVideo(currentId: string): Video | null {
+    const idx = orderedList.findIndex((v) => v.id === currentId);
+    if (idx === -1 || idx + 1 >= orderedList.length) return null;
+    return orderedList[idx + 1];
+  }
+
+  // Stay on the big centered mission-of-day view through the "Next mission"
+  // moment, even though it's technically been marked watched already -
+  // otherwise the button would vanish the instant it appears, since marking
+  // it watched is what normally collapses this into the compact layout.
+  const missionOfDayExpanded = Boolean(missionOfDay) && (!watched || completedId === missionOfDay?.id);
 
   return (
     <PageContainer>
       <h1 className="mb-1 text-2xl font-bold text-text">{t('missions_title')}</h1>
       <p className="mb-6 text-text-muted">{t('missions_subtitle')}</p>
 
-      {missionOfDay && !watched && (
+      {missionOfDay && missionOfDayExpanded && (
         <div className="flex min-h-[65vh] flex-col items-center justify-center gap-3">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-accent" aria-hidden="true" />
             <h2 className="text-lg font-bold text-text">{t('missions_missionOfDay')}</h2>
           </div>
-          <div className="w-full max-w-sm">
-            <VideoCard video={missionOfDay} onComplete={() => handleVideoFinished(missionOfDay, true)} />
+          <div ref={(el) => { cardRefs.current[missionOfDay.id] = el; }} className="w-full max-w-sm">
+            <VideoCard
+              video={missionOfDay}
+              onComplete={() => handleVideoFinished(missionOfDay, true)}
+              autoOpen={autoOpenId === missionOfDay.id}
+              completed={completedId === missionOfDay.id}
+              hasNext={Boolean(getNextVideo(missionOfDay.id))}
+              onNext={() => {
+                const next = getNextVideo(missionOfDay.id);
+                if (next) handleNext(next);
+              }}
+            />
           </div>
         </div>
       )}
 
-      {missionOfDay && watched && (
+      {missionOfDay && !missionOfDayExpanded && (
         <>
           <div className="mb-6">
             <div className="mb-2 flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-accent" aria-hidden="true" />
               <h2 className="text-lg font-bold text-text">{t('missions_missionOfDay')}</h2>
             </div>
-            <VideoCard video={missionOfDay} />
+            <div ref={(el) => { cardRefs.current[missionOfDay.id] = el; }}>
+              <VideoCard video={missionOfDay} autoOpen={autoOpenId === missionOfDay.id} />
+            </div>
           </div>
 
           {rest.length > 0 && (
@@ -232,7 +275,19 @@ export function Missions() {
               <h2 className="mb-3 text-lg font-bold text-text">{t('missions_moreMissions')}</h2>
               <div className="flex flex-col gap-3">
                 {rest.map((video) => (
-                  <VideoCard key={video.id} video={video} onComplete={() => handleVideoFinished(video, false)} />
+                  <div key={video.id} ref={(el) => { cardRefs.current[video.id] = el; }}>
+                    <VideoCard
+                      video={video}
+                      onComplete={() => handleVideoFinished(video, false)}
+                      autoOpen={autoOpenId === video.id}
+                      completed={completedId === video.id}
+                      hasNext={Boolean(getNextVideo(video.id))}
+                      onNext={() => {
+                        const next = getNextVideo(video.id);
+                        if (next) handleNext(next);
+                      }}
+                    />
+                  </div>
                 ))}
               </div>
             </>

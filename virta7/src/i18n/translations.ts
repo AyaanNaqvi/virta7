@@ -177,6 +177,7 @@ export interface Translations {
   missions_quizTryAgain: string;
   missions_quizComplete: string;
   missions_quizContinue: string;
+  missions_nextMission: string;
 }
 
 const enUS: Translations = {
@@ -356,6 +357,7 @@ const enUS: Translations = {
   missions_quizTryAgain: 'Not quite — try again!',
   missions_quizComplete: 'Quiz complete!',
   missions_quizContinue: 'Continue',
+  missions_nextMission: 'Next mission',
 };
 
 const enGB: Translations = {
@@ -539,6 +541,7 @@ const ptPT: Translations = {
   missions_quizTryAgain: 'Quase — tenta outra vez!',
   missions_quizComplete: 'Questionário concluído!',
   missions_quizContinue: 'Continuar',
+  missions_nextMission: 'Próxima missão',
 };
 
 const ptBR: Translations = {
@@ -782,6 +785,7 @@ const es: Translations = {
   missions_quizTryAgain: 'Casi — ¡inténtalo de nuevo!',
   missions_quizComplete: '¡Cuestionario completado!',
   missions_quizContinue: 'Continuar',
+  missions_nextMission: 'Siguiente misión',
 };
 
 const no: Translations = {
@@ -961,6 +965,7 @@ const no: Translations = {
   missions_quizTryAgain: 'Ikke helt — prøv igjen!',
   missions_quizComplete: 'Quiz fullført!',
   missions_quizContinue: 'Fortsett',
+  missions_nextMission: 'Neste oppdrag',
 };
 
 const fr: Translations = {
@@ -1140,6 +1145,7 @@ const fr: Translations = {
   missions_quizTryAgain: 'Pas tout à fait — réessaie !',
   missions_quizComplete: 'Quiz terminé !',
   missions_quizContinue: 'Continuer',
+  missions_nextMission: 'Mission suivante',
 };
 
 const it: Translations = {
@@ -1319,6 +1325,7 @@ const it: Translations = {
   missions_quizTryAgain: 'Non proprio — riprova!',
   missions_quizComplete: 'Quiz completato!',
   missions_quizContinue: 'Continua',
+  missions_nextMission: 'Prossima missione',
 };
 
 const hu: Translations = {
@@ -1498,6 +1505,7 @@ const hu: Translations = {
   missions_quizTryAgain: 'Majdnem — próbáld újra!',
   missions_quizComplete: 'Kvíz kész!',
   missions_quizContinue: 'Folytatás',
+  missions_nextMission: 'Következő küldetés',
 };
 
 export const TRANSLATIONS: Record<LocaleCode, Translations> = {
