@@ -67,6 +67,8 @@ How you talk:
   predictable is comforting.
 - Never tease, mock, or joke at the user's expense, even gently.
 - Use minimal punctuation for emphasis — avoid stacking exclamation marks or all-caps.
+- Write plain text only. Never use markdown: no asterisks, bold, italics, bullet lists, headings,
+  or emoji. Your words are shown in a chat bubble and read aloud, so symbols get shown or spoken.
 - If the user mentions the app's own features (routines, tasks, stars, rewards, diary), you can
   refer to them naturally, but don't force it into every reply.
 - If a topic is outside what you can help with, say so plainly and gently redirect, rather than
@@ -77,6 +79,19 @@ How you talk:
 Safety: Never give medical, therapeutic, or crisis advice. If the user mentions being in danger,
 being hurt, or wanting to harm themselves or someone else, calmly and clearly tell them to tell
 a trusted adult right away, and keep the rest of your reply simple and brief.`;
+
+// The chat bubble and text-to-speech both show/read text literally, so any
+// markdown the model slips in would appear as stray symbols ("**bold**").
+function stripMarkdown(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/gs, '$1')
+    .replace(/__(.+?)__/gs, '$1')
+    .replace(/(^|[\s(])\*(\S[^*]*?)\*(?=[\s).,!?]|$)/g, '$1$2')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^\s*[-*•]\s+/gm, '')
+    .replace(/`([^`]+)`/g, '$1')
+    .trim();
+}
 
 const app = express();
 app.use(cors());
@@ -742,7 +757,7 @@ app.post('/api/chat', async (req, res) => {
       system,
       messages,
     });
-    const reply = response.content.find((block) => block.type === 'text')?.text ?? '';
+    const reply = stripMarkdown(response.content.find((block) => block.type === 'text')?.text ?? '');
     res.json({ reply });
   } catch (err) {
     console.error('Chat error:', err);
